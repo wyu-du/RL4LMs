@@ -719,6 +719,57 @@ class IntentAccuracyDailyDialog(BaseMetric):
         return metric_dict
 
 
+class CoherenceMultiDoc2Dial(BaseMetric):
+    def __init__(self) -> None:
+        super().__init__()
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            "roberta-base"
+        )
+        self._model = AutoModelForSequenceClassification.from_pretrained(
+            "/p/fewshot/RL4LMs/ckpts/roberta-base-v2-lr1e-05-dec0-hist150"
+        )
+        self._device = "cuda" if torch.cuda.is_available() else "cpu"
+        self._device = f"cuda:{torch.cuda.device_count() - 1}"
+        self._model = self._model.to(self._device)
+
+    def compute(
+        self,
+        prompt_texts: List[str],
+        generated_texts: List[str],
+        reference_texts: List[List[str]],
+        meta_infos: List[Dict[str, Any]] = None,
+        model: PreTrainedModel = None,
+        split_name: str = None,
+    ) -> Tuple[List[float], float]:
+        def get_input_for_classifier(prompt, generated_text):
+            question = prompt.split('context: ')[0].replace('[SEP]', '||')
+            input_text = f'response: {generated_text} question: {question}'
+            return input_text
+
+        # we have to extract the history utterances
+        input_texts = [
+            get_input_for_classifier(prompt, gen)
+            for prompt, gen in zip(prompt_texts, generated_texts)
+        ]
+        
+        # tokenize
+        encoded = self._tokenizer(
+            input_texts, return_tensors="pt", truncation=True, padding=True
+        )
+
+        with torch.no_grad():
+            outputs = self._model(
+                input_ids=encoded.input_ids.to(self._device),
+                attention_mask=encoded.attention_mask.to(self._device),
+            )
+            scores = torch.nn.functional.softmax(outputs['logits'], dim=-1)[:, -1].tolist() # ensure shape is (B)
+            
+        avg_scores = np.mean(scores)
+
+        metric_dict = {"multidoc2dial/coherence": (scores, avg_scores)}
+        return metric_dict
+
+
 if __name__ == "__main__":
     prompt_texts = [""]
     gen_texts = ["Hello there general kenobi", "foo bar foobar"]
@@ -761,17 +812,18 @@ if __name__ == "__main__":
     # metric = SummaCConvMetric(granularity="sentence")
     # print(metric.compute([document], [summary], []))
 
-    prompt_texts = ["1", "2"]
+    prompt_texts = ["question: My insurance ended so what should i do[SEP] context: Top 5 DMV Mistakes and How to Avoid Them",
+                    "question: Don't do that I'll get insurance[SEP]agent: You will need to get insurance or we will suspend your registration and license||user: My insurance ended so what should i do context: Top 5 DMV Mistakes and How to Avoid Them"]
     gen_texts = [
-        "The dog is the boy's cat.",
-        "A boy is picking apples from trees and put them into bags.",
+        "turn in your vehicle s license plates at DMV before you cancel your insurance policy",
+        "Make sure you turn in your vehicle s license plates at DMV before you cancel your insurance policy",
     ]
     reference_texts = [
-        ["The dog is the boy's cat.", "The dog eats the cat of the boy."],
-        ["A boy is picking apples from trees."],
+        ["You will need to get insurance or we will suspend your registration and license"],
+        ["Okay, have you received a letter from the DMV letting you know how to clear things up?"],
     ]
-    metric = CIDERMetric()
+    metric = CoherenceMultiDoc2Dial()
     print(metric.compute(prompt_texts, gen_texts, reference_texts))
 
-    metric = SpiceMetric()
-    print(metric.compute(prompt_texts, gen_texts, reference_texts))
+    # metric = SpiceMetric()
+    # print(metric.compute(prompt_texts, gen_texts, reference_texts))

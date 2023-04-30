@@ -12,6 +12,42 @@ import zipfile
 import json
 
 
+class MultiDoc2Dial(TextGenPool):
+    @classmethod
+    def prepare(cls, split: str):
+        # load the split
+        split_path = f'data/mdd_conv/dprft_{split}.json'
+        with open(split_path, 'r') as f:
+            data = json.load(f)
+
+        samples = []
+        for ix, example in enumerate(data[:1000]):
+            question = ' '.join(example['question'].split(' ')[:150])
+            # question = question.replace('[SEP]', '||')
+            flag = True
+            input_text, answers = None, None
+            for n in range(100):
+                # only use gold passage for training
+                if example['ctxs'][n]['has_answer'] is False: continue
+                p = example['ctxs'][n]['text']
+                input_text = f'question: {question} context: {p}'
+                answers = example['answers']
+                flag = False
+                break
+            if flag:
+                p = example['ctxs'][0]['text']
+                input_text = f'question: {question} context: {p}'
+                answers = example['answers']
+
+            sample = Sample(id=f"{split}_{ix}",
+                            prompt_or_input_text=input_text,
+                            references=answers)
+            samples.append(sample)
+
+        dp_instance = cls(samples)
+        return dp_instance
+
+
 class ToTTo(TextGenPool):
     @classmethod
     def prepare(cls, split: str,

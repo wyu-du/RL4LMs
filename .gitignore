@@ -134,3 +134,8 @@ dmypy.json
 .idea/
 cluster_utils/
 **/wandb/
+
+ckpts/
+data/
+hf_caching_downloads/
+rl4lm_exps/

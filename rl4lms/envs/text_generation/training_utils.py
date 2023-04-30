@@ -71,7 +71,8 @@ def build_datapool(datapool_config: Dict[str, Any]):
         "train": [(sample, weight)
                   for sample, weight in train_datapool],
         "val": [sample for sample, _ in val_datapool],
-        "test": [sample for sample, _ in test_datapool]
+        "test": [sample for sample, _ in test_datapool],
+        "train_debug": [sample for sample, _ in train_datapool],
     }
     return samples_by_split
 
@@ -182,7 +183,7 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
         for split in splits:
             evaluate_on_samples(policy=self._alg.policy,
                                 tokenizer=self._tokenizer,
-                                samples=self._samples_by_split[split],
+                                samples=self._samples_by_split[split][:100],
                                 batch_size=self._eval_batch_size,
                                 max_prompt_length=self._max_prompt_length,
                                 metrics=self._metrics,
@@ -194,7 +195,7 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
     def train_and_eval(self):
         # evaluate on val and test set before fine-tuning once
         iter_start = self._trainer_state["current_iter"]
-        self._evaluate_on_datapools(epoch=iter_start)
+        self._evaluate_on_datapools(epoch=iter_start, splits=["train_debug", "val", "test"])
 
         # train for given number of iters
         for epoch in range(iter_start, self._n_iters):
@@ -211,10 +212,10 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
 
             # evaluate on val set in the given intervals
             if (epoch + 1) % self._train_eval_config["eval_every"] == 0:
-                self._evaluate_on_datapools(epoch=epoch, splits=["val"])
+                self._evaluate_on_datapools(epoch=epoch, splits=["train_debug", "val", "test"])
 
         # finally evaluate on val and test samples
-        self._evaluate_on_datapools(epoch=epoch)
+        self._evaluate_on_datapools(epoch=epoch, splits=["train_debug", "val", "test"])
 
         # save model here - we save only the language model
         if self._tracker is not None:
