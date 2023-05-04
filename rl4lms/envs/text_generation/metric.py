@@ -720,7 +720,7 @@ class IntentAccuracyDailyDialog(BaseMetric):
 
 
 class CoherenceMultiDoc2Dial(BaseMetric):
-    def __init__(self) -> None:
+    def __init__(self, batch_size: int = 16) -> None:
         super().__init__()
         self._tokenizer = AutoTokenizer.from_pretrained(
             "roberta-base"
@@ -731,6 +731,7 @@ class CoherenceMultiDoc2Dial(BaseMetric):
         self._device = "cuda" if torch.cuda.is_available() else "cpu"
         self._device = f"cuda:{torch.cuda.device_count() - 1}"
         self._model = self._model.to(self._device)
+        self._batch_size = batch_size
 
     def compute(
         self,
@@ -742,32 +743,80 @@ class CoherenceMultiDoc2Dial(BaseMetric):
         split_name: str = None,
     ) -> Tuple[List[float], float]:
         def get_input_for_classifier(prompt, generated_text):
-            question = prompt.split('context: ')[0].replace('[SEP]', '||')
+            question = ' '.join(prompt.split('context:')[0].replace('[SEP]', '||').split()[:100])
             input_text = f'response: {generated_text} question: {question}'
             return input_text
+        
+        all_scores = []
+        cur_idx = 0
+        while cur_idx < len(prompt_texts):
+            batch_prompt_texts = prompt_texts[cur_idx: cur_idx + self._batch_size]
+            batch_gen_texts = generated_texts[cur_idx: cur_idx + self._batch_size]
 
-        # we have to extract the history utterances
+            # we have to extract the history utterances
+            batch_input_texts = [
+                get_input_for_classifier(prompt, gen)
+                for prompt, gen in zip(batch_prompt_texts, batch_gen_texts)
+            ]
+            # tokenize
+            encoded = self._tokenizer(
+                batch_input_texts, return_tensors="pt", truncation=True, padding=True
+            )
+
+            with torch.no_grad():
+                outputs = self._model(
+                    input_ids=encoded.input_ids.to(self._device),
+                    attention_mask=encoded.attention_mask.to(self._device),
+                )
+                scores = torch.softmax(outputs['logits'], dim=-1)[:, -1].tolist() # ensure shape is (B)
+                all_scores.extend(scores)
+            cur_idx += self._batch_size
+        
+        metric_dict = {"lexical/coherence": (all_scores, np.mean(all_scores))}
+        return metric_dict
+
+    
+class BERTPrecisionMetric(BaseMetric):
+    def __init__(self, language: str) -> None:
+        super().__init__()
+        self._metric = load_metric("bertscore")
+        self._language = language
+        # since models are loaded heavily on cuda:0, use the last one to avoid memory
+        self._last_gpu = f"cuda:{torch.cuda.device_count() - 1}"
+
+    def compute(
+        self,
+        prompt_texts: List[str],
+        generated_texts: List[str],
+        reference_texts: List[List[str]],
+        meta_infos: List[Dict[str, Any]] = None,
+        model: PreTrainedModel = None,
+        split_name: str = None,
+    ) -> Tuple[List[float], float]:
+        def get_input_for_classifier(prompt):
+            if 'context:' in prompt:
+                passage = ' '.join(prompt.split('context:')[-1].split()[:100])
+            else:
+                passage = ' '.join(prompt.split()[:100])
+            return passage
+        
+        # extract the knowledge passage
         input_texts = [
-            get_input_for_classifier(prompt, gen)
-            for prompt, gen in zip(prompt_texts, generated_texts)
+            get_input_for_classifier(prompt)
+            for prompt in prompt_texts
         ]
         
-        # tokenize
-        encoded = self._tokenizer(
-            input_texts, return_tensors="pt", truncation=True, padding=True
-        )
-
         with torch.no_grad():
-            outputs = self._model(
-                input_ids=encoded.input_ids.to(self._device),
-                attention_mask=encoded.attention_mask.to(self._device),
+            metric_results = self._metric.compute(
+                predictions=generated_texts,
+                references=input_texts,
+                lang=self._language,
+                device=self._last_gpu,
             )
-            scores = torch.nn.functional.softmax(outputs['logits'], dim=-1)[:, -1].tolist() # ensure shape is (B)
-            
-        avg_scores = np.mean(scores)
-
-        metric_dict = {"multidoc2dial/coherence": (scores, avg_scores)}
-        return metric_dict
+            bert_scores = metric_results["precision"]
+            corpus_level_score = np.mean(bert_scores)
+            metric_dict = {"lexical/bert_precision": (bert_scores, corpus_level_score)}
+            return metric_dict
 
 
 if __name__ == "__main__":

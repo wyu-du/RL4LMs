@@ -21,7 +21,7 @@ class MultiDoc2Dial(TextGenPool):
             data = json.load(f)
 
         samples = []
-        for ix, example in enumerate(data[:1000]):
+        for ix, example in enumerate(data):
             question = ' '.join(example['question'].split(' ')[:150])
             # question = question.replace('[SEP]', '||')
             flag = True

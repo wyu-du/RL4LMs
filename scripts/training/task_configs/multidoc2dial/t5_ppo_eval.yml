@@ -5,7 +5,7 @@ tokenizer:
   pad_token_as_eos_token: False
 
 reward_fn:
-  id: sacre_bleu
+  id: bert_precision
   # id: rouge_l_max
   # args:
   #   max_n: 4
@@ -36,7 +36,7 @@ datapool:
   id: multidoc2dial
 
 env:
-  n_envs: 4
+  n_envs: 2
   args:
     max_prompt_length: 350
     max_episode_length: 50
@@ -67,9 +67,9 @@ alg:
         max_new_tokens: 50
     
 train_evaluation:
-  eval_batch_size: 8
-  n_iters: 10000
-  eval_every: 100
+  eval_batch_size: 16
+  n_iters: 1000
+  eval_every: 10
   save_every: 100
   metrics:
     - id: mdd_coherence

@@ -1,3 +1,4 @@
+# Fine-tune supervised
 CUDA_VISIBLE_DEVICES=4,5,6,7 python scripts/training/train_text_generation.py \
 --config_path scripts/training/task_configs/multidoc2dial/t5_supervised.yml \
 --project_name rl4lm_exps \
@@ -5,9 +6,18 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 python scripts/training/train_text_generation.py \
 --entity_name wyu-du \
 --log_to_wandb 
 
-
+# PPO
 CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/train_text_generation.py \
 --config_path scripts/training/task_configs/multidoc2dial/t5_ppo_on_supervised.yml \
---experiment_name t5-mdd-supervised-ppo-1k \
+--project_name rl4lm_exps \
+--experiment_name t5-mdd-supervised-ppo-full-sacre_bleu \
+--base_path_to_store_results rl4lm_exps/t5-mdd-supervised-ppo-full-sacre_bleu \
+--entity_name wyu-du \
+--log_to_wandb 
+
+# PPO eval
+CUDA_VISIBLE_DEVICES=4,5,6,7 python scripts/training/train_text_generation.py \
+--config_path scripts/training/task_configs/multidoc2dial/t5_ppo_eval.yml \
+--experiment_name t5-mdd-supervised-ppo-1k-bert_precision \
 --entity_name wyu-du \
 --log_to_wandb 

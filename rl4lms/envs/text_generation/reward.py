@@ -15,6 +15,8 @@ from rl4lms.envs.text_generation.metric import (
     TERMetric,
     chrFmetric,
     IntentAccuracyDailyDialog,
+    CoherenceMultiDoc2Dial,
+    BERTPrecisionMetric,
 )
 import numpy as np
 from typing import List, Dict, Any
@@ -657,6 +659,52 @@ class IntentAccuracy(BatchedRewardFunction):
         )["intent/accuracy"][0]
         rewards[done_ixs] += self._intent_coeff * np.array(scores)
         return rewards.tolist()
+    
+
+class BERTPrecisionRewardFunction(RewardFunction):
+    def __init__(self, language: str = "en") -> None:
+        super().__init__()
+        self._metric = BERTPrecisionMetric(language)
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
+            prompts = [truncated_prompt]
+            predicted = [next_observation.context_text]
+            metric_results = self._metric.compute(prompts, predicted, None)
+            bert_score = metric_results["lexical/bert_precision"][1]
+            return bert_score
+        return 0
+
+
+class CoherenceMDDRewardFunction(RewardFunction):
+    def __init__(self, batch_size: int = 1) -> None:
+        super().__init__()
+        self._metric = CoherenceMultiDoc2Dial(batch_size)
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split()[:100])
+            prompts = [truncated_prompt]
+            predicted = [next_observation.context_text]
+            metric_results = self._metric.compute(prompts, predicted, None)
+            score = metric_results["lexical/coherence"][1]
+            return score
+        return 0
 
 
 if __name__ == "__main__":

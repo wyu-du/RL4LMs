@@ -45,10 +45,10 @@ env:
     prompt_truncation_side: "right"
 
 alg:
-  id: ppo
+  id: nlpo
   args:
     n_steps: 50
-    batch_size: 2
+    batch_size: 4
     verbose: 1
     learning_rate: 0.0000005
     n_epochs: 5
@@ -56,25 +56,25 @@ alg:
     coeff: 0.001
     target_kl: 0.2
   policy:
-    id: seq2seq_lm_actor_critic_policy
+    id: maskable_seq2seq_lm_actor_critic_policy
     args:
       model_name: ckpts/t5-base-mdd-supervised-new/model
       apply_model_parallel: True
-      prompt_truncation_side: "right"
+      mask_type: "learned_top_p"
+      top_mask: 0.9
+      target_update_iterations: 20
       generation_kwargs:
         do_sample: True
         top_k: 50
-        max_new_tokens: 50
     
 train_evaluation:
-  eval_batch_size: 8
-  n_iters: 10000
+  eval_batch_size: 32
+  n_iters: 21000
   eval_every: 100
   save_every: 100
   metrics:
-    - id: mdd_coherence
-      args: 
-        batch_size: 16
+    # - id: mdd_coherence
+    #   args: {}
     - id: sacre_bleu
       args: {}
     - id: meteor
@@ -82,9 +82,6 @@ train_evaluation:
     - id: rouge
       args: {}
     - id: bert_score
-      args:
-        language: en
-    - id: bert_precision
       args:
         language: en
     - id: diversity
