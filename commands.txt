@@ -10,14 +10,25 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 python scripts/training/train_text_generation.py \
 CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/train_text_generation.py \
 --config_path scripts/training/task_configs/multidoc2dial/t5_ppo_on_supervised.yml \
 --project_name rl4lm_exps \
---experiment_name t5-mdd-supervised-ppo-full-sacre_bleu \
---base_path_to_store_results rl4lm_exps/t5-mdd-supervised-ppo-full-sacre_bleu \
+--experiment_name t5-mdd-supervised-ppo-full-bert_precision \
+--entity_name wyu-du \
+--log_to_wandb 
+
+# PPO-1k
+CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/hyper_search_test.py \
+--config_path scripts/training/task_configs/multidoc2dial/t5_ppo_1k.yml \
+--project_name rl4lm_exps \
+--experiment_name t5-mdd-supervised-ppo-100-test \
 --entity_name wyu-du \
 --log_to_wandb 
 
 # PPO eval
-CUDA_VISIBLE_DEVICES=4,5,6,7 python scripts/training/train_text_generation.py \
+CUDA_VISIBLE_DEVICES=6 python scripts/training/eval_text_generation.py \
 --config_path scripts/training/task_configs/multidoc2dial/t5_ppo_eval.yml \
---experiment_name t5-mdd-supervised-ppo-1k-bert_precision \
---entity_name wyu-du \
---log_to_wandb 
+--project_name rl4lm_exps \
+--experiment_name t5-mdd-supervised-ppo-1k-combined01 
+
+CUDA_VISIBLE_DEVICES=6 python scripts/training/get_best_dev_scores.py \
+--config_path scripts/training/task_configs/multidoc2dial/t5_ppo_eval.yml \
+--project_name rl4lm_exps \
+--experiment_name t5-mdd-supervised-ppo-1k-bert_precision

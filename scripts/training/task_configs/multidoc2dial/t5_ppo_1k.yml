@@ -5,14 +5,14 @@ tokenizer:
   pad_token_as_eos_token: False
 
 reward_fn:
-  id: bert_precision
-  # id: ours_combined
-  # args: 
-  #   batch_size: 4
-  #   cof_info: 0.35
-  #   cof_faith: 0.35
-  #   cof_coherence: 0.3
-  #   language: en
+  id: ours_combined
+  args: 
+    batch_size: 4
+    cof_info: 0.45
+    cof_faith: 0.45
+    cof_coherence: 0.1
+    language: en
+  # id: sacre_bleu
   # id: rouge_l_max
   # args:
   #   max_n: 4
@@ -65,7 +65,7 @@ alg:
   policy:
     id: seq2seq_lm_actor_critic_policy
     args:
-      model_name: rl4lm_exps/t5-mdd-supervised-ppo-full-bert_precision/3599_model
+      model_name: ckpts/t5-base-mdd-supervised-new/model
       apply_model_parallel: True
       prompt_truncation_side: "right"
       generation_kwargs:
@@ -74,20 +74,17 @@ alg:
         max_new_tokens: 50
     
 train_evaluation:
-  eval_batch_size: 8
-  n_iters: 10000
+  eval_batch_size: 4
+  n_iters: 100
   eval_every: 100
   save_every: 100
   metrics:
     - id: mdd_coherence
       args: 
-        batch_size: 8
+        batch_size: 4
     - id: sacre_bleu
-      args: {}
     - id: meteor
-      args: {}
     - id: rouge
-      args: {}
     - id: bert_score
       args:
         language: en

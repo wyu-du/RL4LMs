@@ -16,6 +16,9 @@ from rl4lms.data_pools.custom_text_generation_pools import DailyDialog
 from tqdm import tqdm
 import copy
 import rouge
+import regex
+import string
+from collections import Counter
 
 
 class BaseMetric:
@@ -817,6 +820,70 @@ class BERTPrecisionMetric(BaseMetric):
             corpus_level_score = np.mean(bert_scores)
             metric_dict = {"lexical/bert_precision": (bert_scores, corpus_level_score)}
             return metric_dict
+
+
+class KnowledgeF1Metric(BaseMetric):
+    def __init__(self) -> None:
+        super().__init__()
+
+    #Normalization from SQuAD evaluation script https://worksheets.codalab.org/rest/bundles/0x6b567e1cf2e041ec80d7098f031c5c9e/contents/blob/
+    def normalize_answer(self, s):
+        def remove_articles(text):
+            return regex.sub(r'\b(a|an|the)\b', ' ', text)
+
+        def white_space_fix(text):
+            return ' '.join(text.split())
+
+        def remove_punc(text):
+            exclude = set(string.punctuation)
+            return ''.join(ch for ch in text if ch not in exclude)
+
+        def lower(text):
+            return text.lower()
+
+        return white_space_fix(remove_articles(remove_punc(lower(s))))
+    
+    def f1_score(self, prediction, ground_truth):
+        prediction_tokens = self.normalize_answer(prediction).split()
+        ground_truth_tokens = self.normalize_answer(ground_truth).split()
+        common = Counter(prediction_tokens) & Counter(ground_truth_tokens)
+        num_same = sum(common.values())
+        if num_same == 0:
+            return 0
+        precision = 1.0 * num_same / len(prediction_tokens)
+        recall = 1.0 * num_same / len(ground_truth_tokens)
+        f1 = (2 * precision * recall) / (precision + recall)
+        return f1
+    
+    def get_input_for_classifier(self, prompt):
+        if 'context:' in prompt:
+            passage = ' '.join(prompt.split('context:')[-1].split()[:100])
+        else:
+            passage = ' '.join(prompt.split()[:100])
+        return passage
+
+    def compute(
+        self,
+        prompt_texts: List[str],
+        generated_texts: List[str],
+        reference_texts: List[List[str]],
+        meta_infos: List[Dict[str, Any]] = None,
+        model: PreTrainedModel = None,
+        split_name: str = None,
+    ) -> Tuple[List[float], float]:
+        # extract the knowledge passage
+        input_texts = [
+            self.get_input_for_classifier(prompt)
+            for prompt in prompt_texts
+        ]
+
+        f1 = 0
+        for gen, ref in zip(generated_texts, input_texts):
+            f1 += self.f1_score(gen, ref)
+        f1_score = f1 / len(generated_texts)
+
+        metric_dict = {"lexical/knowledge_f1": (None, f1_score)}
+        return metric_dict
 
 
 if __name__ == "__main__":

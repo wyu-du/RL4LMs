@@ -151,6 +151,10 @@ class Tracker:
         model_path = os.path.join(self._run_path, "model")
         model.save_pretrained(model_path)
 
+    def save_current_model(self, epoch, model: AutoModel):
+        model_path = os.path.join(self._run_path, f"{epoch}_model")
+        model.save_pretrained(model_path)
+
     @property
     def checkpoint_base_path(self):
         return os.path.join(self._run_path, "checkpoints")

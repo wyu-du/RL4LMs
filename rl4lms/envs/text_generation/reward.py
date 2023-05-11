@@ -707,6 +707,56 @@ class CoherenceMDDRewardFunction(RewardFunction):
         return 0
 
 
+class CombinedRewardFunction(RewardFunction):
+    def __init__(self, 
+                 language: str = "en", 
+                 batch_size: int = 1,
+                 cof_info: float = 0.35,
+                 cof_faith: float = 0.35,
+                 cof_coherence: float = 0.3) -> None:
+        super().__init__()
+        self._coherence_metric = CoherenceMultiDoc2Dial(batch_size)
+        self._info_metric = load_metric("sacrebleu")
+        self._faithful_metric = BERTPrecisionMetric(language)
+        self.cof_info = cof_info
+        self.cof_faith = cof_faith
+        self.cof_coherence = cof_coherence
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            # coherence score
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split()[:100])
+            prompts = [truncated_prompt]
+            predicted = [next_observation.context_text]
+            metric_results = self._coherence_metric.compute(prompts, predicted, None)
+            coherence_score = metric_results["lexical/coherence"][1]
+
+            # information score
+            references = [next_observation.target_or_reference_texts]
+            predicted = [next_observation.context_text]
+            metric_results = self._info_metric.compute(predictions=predicted, references=references)
+            info_score = metric_results["score"] / 100
+
+            # bert-precision score
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
+            prompts = [truncated_prompt]
+            predicted = [next_observation.context_text]
+            metric_results = self._faithful_metric.compute(prompts, predicted, None)
+            bert_score = metric_results["lexical/bert_precision"][1]
+
+            # total combined score
+            score = self.cof_info*info_score + self.cof_faith*bert_score + self.cof_coherence*coherence_score
+            return score
+        return 0
+
+
 if __name__ == "__main__":
     predictions = "hello there general kenobi"
     references = ["hello there general kenobi", "hello there!!"]

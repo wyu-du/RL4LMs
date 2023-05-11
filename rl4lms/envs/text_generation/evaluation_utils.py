@@ -95,6 +95,7 @@ def evaluate_on_samples(
         tracker.log_predictions(epoch, split_name, sample_predictions_dict)
         # log the corpus level scores
         tracker.log_metrics(epoch, split_name, corpus_level_metrics)
+    return corpus_level_metrics
 
 
 def generate_text(

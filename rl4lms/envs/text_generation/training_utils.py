@@ -183,7 +183,7 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
         for split in splits:
             evaluate_on_samples(policy=self._alg.policy,
                                 tokenizer=self._tokenizer,
-                                samples=self._samples_by_split[split][:100],
+                                samples=self._samples_by_split[split],
                                 batch_size=self._eval_batch_size,
                                 max_prompt_length=self._max_prompt_length,
                                 metrics=self._metrics,
@@ -207,8 +207,11 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
 
             # save the policy checkpoint
             if (epoch + 1) % self._train_eval_config.get("save_every", 20) == 0:
-                self.save_trainer_state(
-                    self._tracker, self._alg.policy, self._trainer_state)
+                # self.save_trainer_state(
+                #     self._tracker, self._alg.policy, self._trainer_state)
+                if self._tracker is not None:
+                    self._tracker.save_current_model(epoch,
+                        self._alg.policy.get_language_model())
 
             # evaluate on val set in the given intervals
             if (epoch + 1) % self._train_eval_config["eval_every"] == 0:
@@ -221,6 +224,33 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
         if self._tracker is not None:
             self._tracker.save_auto_model(
                 self._alg.policy.get_language_model())
+            
+    def train_and_eval_hyper_search(self, split = 'val', val_sample_num = 100):
+        # evaluate on val and test set before fine-tuning once
+        iter_start = self._trainer_state["current_iter"]
+
+        # train for given number of iters
+        for epoch in range(iter_start, self._n_iters):
+            # inner rollout and learn loop for on-policy algorithm
+            self._alg.learn(self._n_steps_per_iter)
+
+        # evaluate on val samples
+        corpus_level_metrics = evaluate_on_samples(policy=self._alg.policy,
+                                                    tokenizer=self._tokenizer,
+                                                    samples=self._samples_by_split[split][:val_sample_num],
+                                                    batch_size=self._eval_batch_size,
+                                                    max_prompt_length=self._max_prompt_length,
+                                                    metrics=self._metrics,
+                                                    epoch=self._n_iters,
+                                                    split_name=split,
+                                                    tracker=self._tracker,
+                                                    gen_kwargs=self._eval_gen_kwargs)
+        total_scores = 0
+        for key, val in corpus_level_metrics.items():
+            if key in ['lexical/coherence', 'lexical/sacrebleu', 'lexical/rouge_rougeL', 
+                       'semantic/bert_score', 'lexical/bert_precision', 'lexical/knowledge_f1']:
+                total_scores += val
+        return total_scores
 
 
 class SupervisedTrainer:

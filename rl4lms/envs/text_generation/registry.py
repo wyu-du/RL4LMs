@@ -47,6 +47,7 @@ from rl4lms.envs.text_generation.metric import (
     IntentAccuracyDailyDialog,
     CoherenceMultiDoc2Dial,
     BERTPrecisionMetric,
+    KnowledgeF1Metric,
 )
 from rl4lms.envs.text_generation.policy.base_policy import LMActorCriticPolicy
 from rl4lms.envs.text_generation.policy.causal_policy import (
@@ -79,6 +80,7 @@ from rl4lms.envs.text_generation.reward import (
     IntentAccuracy,
     BERTPrecisionRewardFunction,
     CoherenceMDDRewardFunction,
+    CombinedRewardFunction,
 )
 from rl4lms.envs.text_generation.preference_reward import CommonGenPrefRM
 from rl4lms.envs.text_generation.test_datapool import TestTextGenPool
@@ -141,6 +143,7 @@ class RewardFunctionRegistry:
         "common_gen_preference_model": CommonGenPrefRM,
         "bert_precision": BERTPrecisionRewardFunction,
         'mdd_coherence': CoherenceMDDRewardFunction,
+        'ours_combined': CombinedRewardFunction,
     }
 
     @classmethod
@@ -179,6 +182,7 @@ class MetricRegistry:
         "intent_accuracy": IntentAccuracyDailyDialog,
         'mdd_coherence': CoherenceMultiDoc2Dial,
         'bert_precision': BERTPrecisionMetric,
+        'knowledge_f1': KnowledgeF1Metric,
     }
 
     @classmethod
