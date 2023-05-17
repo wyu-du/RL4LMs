@@ -161,7 +161,12 @@ class Observation:
             prompt_outputs.input_ids, prompt_outputs.attention_mask,
             context_outputs.input_ids, context_outputs.attention_mask,
             tokenizer.pad_token_id)
-
+        
+        if sample.meta_data:
+            if 'knowledge_passage' in sample.meta_data.keys():
+                meta_info['knowledge_passage'] = sample.meta_data['knowledge_passage']
+            if 'knowledge_span' in sample.meta_data.keys():
+                meta_info['knowledge_span'] = sample.meta_data['knowledge_span']
         obs = Observation(prompt_or_input_encoded_pt=prompt_outputs.input_ids,
                           prompt_or_input_attention_mask_pt=prompt_outputs.attention_mask,
                           prompt_or_input_text=sample.prompt_or_input_text,

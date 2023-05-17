@@ -796,29 +796,72 @@ class BERTPrecisionMetric(BaseMetric):
         model: PreTrainedModel = None,
         split_name: str = None,
     ) -> Tuple[List[float], float]:
-        def get_input_for_classifier(prompt):
-            if 'context:' in prompt:
-                passage = ' '.join(prompt.split('context:')[-1].split()[:100])
+        def get_text(meta):
+            if 'knowledge_span' in meta.keys():
+                passage =  meta['knowledge_span']
             else:
-                passage = ' '.join(prompt.split()[:100])
+                passage =  meta['knowledge_passage']
+            passage = ' '.join(passage.split()[:100])
             return passage
         
         # extract the knowledge passage
-        input_texts = [
-            get_input_for_classifier(prompt)
-            for prompt in prompt_texts
+        knowledge_texts = [
+            get_text(meta) for meta in meta_infos
         ]
         
         with torch.no_grad():
             metric_results = self._metric.compute(
                 predictions=generated_texts,
-                references=input_texts,
+                references=knowledge_texts,
                 lang=self._language,
                 device=self._last_gpu,
             )
             bert_scores = metric_results["precision"]
             corpus_level_score = np.mean(bert_scores)
             metric_dict = {"lexical/bert_precision": (bert_scores, corpus_level_score)}
+            return metric_dict
+
+
+class BERTF1Metric(BaseMetric):
+    def __init__(self, language: str) -> None:
+        super().__init__()
+        self._metric = load_metric("bertscore")
+        self._language = language
+        # since models are loaded heavily on cuda:0, use the last one to avoid memory
+        self._last_gpu = f"cuda:{torch.cuda.device_count() - 1}"
+
+    def compute(
+        self,
+        prompt_texts: List[str],
+        generated_texts: List[str],
+        reference_texts: List[List[str]],
+        meta_infos: List[Dict[str, Any]] = None,
+        model: PreTrainedModel = None,
+        split_name: str = None,
+    ) -> Tuple[List[float], float]:
+        def get_text(meta):
+            if 'knowledge_span' in meta.keys():
+                passage =  meta['knowledge_span']
+            else:
+                passage =  meta['knowledge_passage']
+            passage = ' '.join(passage.split()[:100])
+            return passage
+        
+        # extract the knowledge passage
+        knowledge_texts = [
+            get_text(meta) for meta in meta_infos
+        ]
+
+        with torch.no_grad():
+            metric_results = self._metric.compute(
+                predictions=generated_texts,
+                references=knowledge_texts,
+                lang=self._language,
+                device=self._last_gpu,
+            )
+            bert_scores = metric_results["f1"]
+            corpus_level_score = np.mean(bert_scores)
+            metric_dict = {"lexical/bert_know_f1": (bert_scores, corpus_level_score)}
             return metric_dict
 
 
@@ -855,11 +898,12 @@ class KnowledgeF1Metric(BaseMetric):
         f1 = (2 * precision * recall) / (precision + recall)
         return f1
     
-    def get_input_for_classifier(self, prompt):
-        if 'context:' in prompt:
-            passage = ' '.join(prompt.split('context:')[-1].split()[:100])
+    def get_text(self, meta):
+        if 'knowledge_span' in meta.keys():
+            passage =  meta['knowledge_span']
         else:
-            passage = ' '.join(prompt.split()[:100])
+            passage =  meta['knowledge_passage']
+        passage = ' '.join(passage.split()[:100])
         return passage
 
     def compute(
@@ -872,13 +916,12 @@ class KnowledgeF1Metric(BaseMetric):
         split_name: str = None,
     ) -> Tuple[List[float], float]:
         # extract the knowledge passage
-        input_texts = [
-            self.get_input_for_classifier(prompt)
-            for prompt in prompt_texts
+        knowledge_texts = [
+            self.get_text(meta) for meta in meta_infos
         ]
 
         f1 = 0
-        for gen, ref in zip(generated_texts, input_texts):
+        for gen, ref in zip(generated_texts, knowledge_texts):
             f1 += self.f1_score(gen, ref)
         f1_score = f1 / len(generated_texts)
 

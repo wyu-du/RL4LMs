@@ -51,15 +51,15 @@ def main(
     return total_scores
 
 def objective(trial: optuna.Trial):
-    info_cofs = trial.suggest_float("cof_info", 0.0, 1.0, step=0.1)
-    faith_cofs = trial.suggest_float("cof_faith", 0.0, 1.0, step=0.1)
-    coherence_cofs = trial.suggest_float("cof_coherence", 0.0, 1.0, step=0.1)
+    info_cofs = trial.suggest_float("cof_info", 0.0, 1.0, step=0.01)
+    # faith_cofs = trial.suggest_float("cof_faith", 0.0, 1.0, step=0.1)
+    # coherence_cofs = trial.suggest_float("cof_coherence", 0.0, 1.0, step=0.1)
 
     reward_config = {"id": 'ours_combined', 
                      "args": {"batch_size": 4, 
                               "cof_info": info_cofs, 
-                              "cof_faith": faith_cofs,
-                              "cof_coherence": coherence_cofs,
+                              "cof_faith": 1-info_cofs,
+                              "cof_coherence": 0.,
                               "language": 'en'}}
     total_scores = main(
         args.config_path,

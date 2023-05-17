@@ -17,6 +17,7 @@ from rl4lms.envs.text_generation.metric import (
     IntentAccuracyDailyDialog,
     CoherenceMultiDoc2Dial,
     BERTPrecisionMetric,
+    BERTF1Metric,
 )
 import numpy as np
 from typing import List, Dict, Any
@@ -664,7 +665,9 @@ class IntentAccuracy(BatchedRewardFunction):
 class BERTPrecisionRewardFunction(RewardFunction):
     def __init__(self, language: str = "en") -> None:
         super().__init__()
-        self._metric = BERTPrecisionMetric(language)
+        self._metric = load_metric("bertscore")
+        self._language = language
+        self._last_gpu = f"cuda:{torch.cuda.device_count() - 1}"
 
     def __call__(
         self,
@@ -678,8 +681,9 @@ class BERTPrecisionRewardFunction(RewardFunction):
             truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
             prompts = [truncated_prompt]
             predicted = [next_observation.context_text]
-            metric_results = self._metric.compute(prompts, predicted, None)
-            bert_score = metric_results["lexical/bert_precision"][1]
+            metric_results = self._metric.compute(predictions=predicted, references=prompts,
+                                                  lang=self._language, device=self._last_gpu)
+            bert_score = np.mean(metric_results["precision"])
             return bert_score
         return 0
 
@@ -715,9 +719,11 @@ class CombinedRewardFunction(RewardFunction):
                  cof_faith: float = 0.35,
                  cof_coherence: float = 0.3) -> None:
         super().__init__()
-        self._coherence_metric = CoherenceMultiDoc2Dial(batch_size)
+        # self._coherence_metric = CoherenceMultiDoc2Dial(batch_size)
         self._info_metric = load_metric("sacrebleu")
-        self._faithful_metric = BERTPrecisionMetric(language)
+        self._faithful_metric = load_metric("bertscore")
+        self._language = language
+        self._last_gpu = f"cuda:{torch.cuda.device_count() - 1}"
         self.cof_info = cof_info
         self.cof_faith = cof_faith
         self.cof_coherence = cof_coherence
@@ -731,12 +737,12 @@ class CombinedRewardFunction(RewardFunction):
         meta_info: Dict[str, Any] = None,
     ) -> float:
         if done:
-            # coherence score
-            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split()[:100])
-            prompts = [truncated_prompt]
-            predicted = [next_observation.context_text]
-            metric_results = self._coherence_metric.compute(prompts, predicted, None)
-            coherence_score = metric_results["lexical/coherence"][1]
+            # # coherence score
+            # truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split()[:100])
+            # prompts = [truncated_prompt]
+            # predicted = [next_observation.context_text]
+            # metric_results = self._coherence_metric.compute(prompts, predicted, None)
+            # coherence_score = metric_results["lexical/coherence"][1]
 
             # information score
             references = [next_observation.target_or_reference_texts]
@@ -748,11 +754,12 @@ class CombinedRewardFunction(RewardFunction):
             truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
             prompts = [truncated_prompt]
             predicted = [next_observation.context_text]
-            metric_results = self._faithful_metric.compute(prompts, predicted, None)
-            bert_score = metric_results["lexical/bert_precision"][1]
+            metric_results = self._faithful_metric.compute(predictions=predicted, references=prompts,
+                                                           lang=self._language, device=self._last_gpu)
+            bert_score = np.mean(metric_results["f1"])
 
             # total combined score
-            score = self.cof_info*info_score + self.cof_faith*bert_score + self.cof_coherence*coherence_score
+            score = self.cof_info*info_score + self.cof_faith*bert_score #+ self.cof_coherence*coherence_score
             return score
         return 0
 

@@ -52,8 +52,7 @@ def main(
             train_eval_config=config["train_evaluation"],
             tracker=tracker,
         )
-    iter_start = trainer._trainer_state["current_iter"]
-    trainer._evaluate_on_datapools(epoch=iter_start, splits=["val", "test"])
+    trainer._evaluate_on_datapools(epoch=-1, splits=["val"])
 
 
 if __name__ == "__main__":

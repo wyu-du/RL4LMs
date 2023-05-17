@@ -21,6 +21,8 @@ from rl4lms.data_pools.custom_text_generation_pools import (
     WMT16NewsOnlyDatasetEnDe,
     DailyDialog,
     MultiDoc2Dial,
+    MultiDoc2Dial_Sp_Only,
+    MultiDoc2Dial_Sp_Insert,
 )
 from rl4lms.data_pools.text_generation_pool import TextGenPool
 from rl4lms.envs.text_generation.alg_wrappers import wrap_onpolicy_alg
@@ -48,6 +50,7 @@ from rl4lms.envs.text_generation.metric import (
     CoherenceMultiDoc2Dial,
     BERTPrecisionMetric,
     KnowledgeF1Metric,
+    BERTF1Metric,
 )
 from rl4lms.envs.text_generation.policy.base_policy import LMActorCriticPolicy
 from rl4lms.envs.text_generation.policy.causal_policy import (
@@ -107,6 +110,8 @@ class DataPoolRegistry:
         "crd3": CRD3DialogueGeneration,
         "daily_dialog": DailyDialog,
         "multidoc2dial": MultiDoc2Dial,
+        "multidoc2dial_sp_only": MultiDoc2Dial_Sp_Only,
+        "multidoc2dial_sp_insert": MultiDoc2Dial_Sp_Insert,
     }
 
     @classmethod
@@ -183,6 +188,7 @@ class MetricRegistry:
         'mdd_coherence': CoherenceMultiDoc2Dial,
         'bert_precision': BERTPrecisionMetric,
         'knowledge_f1': KnowledgeF1Metric,
+        'bert_know_f1': BERTF1Metric,
     }
 
     @classmethod

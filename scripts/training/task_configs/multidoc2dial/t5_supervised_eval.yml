@@ -18,7 +18,7 @@ alg:
     learning_rate: 0.00001
     save_total_limit: 5
   model_type: seq2seq
-  model_name: "t5-base"
+  model_name: rl4lm_exps/t5-mdd-supervised-1k-span-insert-e5/model
   generation_kwargs:
     num_beams: 5
     min_length: 5

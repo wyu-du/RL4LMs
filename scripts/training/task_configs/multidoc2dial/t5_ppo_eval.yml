@@ -65,7 +65,7 @@ alg:
   policy:
     id: seq2seq_lm_actor_critic_policy
     args:
-      model_name: rl4lm_exps/t5-mdd-supervised-ppo-1k-combined01/299_model
+      model_name: rl4lm_exps/t5-mdd-supervised-ppo-1k-combined038/999_model
       apply_model_parallel: True
       prompt_truncation_side: "right"
       generation_kwargs:
@@ -74,14 +74,14 @@ alg:
         max_new_tokens: 50
     
 train_evaluation:
-  eval_batch_size: 4
+  eval_batch_size: 8
   n_iters: 0
   eval_every: 100
   save_every: 100
   metrics:
     - id: mdd_coherence
       args: 
-        batch_size: 4
+        batch_size: 8
     - id: sacre_bleu
     - id: meteor
     - id: rouge
@@ -89,6 +89,9 @@ train_evaluation:
       args:
         language: en
     - id: bert_precision
+      args:
+        language: en
+    - id: bert_know_f1
       args:
         language: en
     - id: knowledge_f1
