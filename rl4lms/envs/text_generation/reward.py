@@ -776,11 +776,12 @@ class CombinedRewardWithSpanFunction(RewardFunction):
             # accuracy score
             predicted = [next_observation.context_text]
             references = [next_observation.target_or_reference_texts]
-            metric_results = self._info_metric.compute(generated_texts=predicted, reference_texts=references)
+            metric_results = self._info_metric.compute(prompt_texts=None, generated_texts=predicted, reference_texts=references)
             info_score = metric_results["lexical/sacrebleu"][1]
 
             # faithfulness score
-            metric_results = self._faithful_metric.compute(generated_texts=predicted, meta_infos=[meta_info])
+            metric_results = self._faithful_metric.compute(prompt_texts=None, generated_texts=predicted, 
+                                                           reference_texts=None, meta_infos=[meta_info])
             bert_score = metric_results["lexical/bert_know_f1"][1]
 
             # total combined score

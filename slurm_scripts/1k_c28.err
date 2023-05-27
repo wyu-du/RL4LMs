@@ -1,281 +1,0 @@
-wandb: Currently logged in as: wyu-du (use `wandb login --relogin` to force relogin)
-2023-05-27 16:06:52.286415: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: :/sw/centos/cuda/10.0/lib64:/usr/local/cuda/lib64:/sw/centos/cuda/10.0/lib64
-wandb: wandb version 0.15.3 is available!  To upgrade, please run:
-wandb:  $ pip install wandb --upgrade
-wandb: Tracking run with wandb version 0.12.15
-wandb: Run data is saved locally in /p/fewshot/RL4LMs/wandb/run-20230527_160650-2pfpoi4l
-wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run t5-mdd-supervised-ppo-1k-combined028-span-reward
-wandb: ⭐️ View project at https://wandb.ai/wyu-du/rl4lm_exps
-wandb: 🚀 View run at https://wandb.ai/wyu-du/rl4lm_exps/runs/2pfpoi4l
-/p/fewshot/RL4LMs/rl4lms/envs/text_generation/metric.py:600: FutureWarning: load_metric is deprecated and will be removed in the next major version of datasets. Use 'evaluate.load' instead, from the new library 🤗 Evaluate: https://huggingface.co/docs/evaluate
-  self._metric = load_metric("sacrebleu")
-[nltk_data] Downloading package wordnet to /u/wd5jq/nltk_data...
-[nltk_data]   Package wordnet is already up-to-date!
-[nltk_data] Downloading package punkt to /u/wd5jq/nltk_data...
-[nltk_data]   Package punkt is already up-to-date!
-[nltk_data] Downloading package omw-1.4 to /u/wd5jq/nltk_data...
-[nltk_data]   Package omw-1.4 is already up-to-date!
-Evaluating:   0% 0/25 [00:00<?, ?it/s]Evaluating:   4% 1/25 [00:19<07:50, 19.59s/it]Evaluating:   8% 2/25 [00:21<03:25,  8.93s/it]Evaluating:  12% 3/25 [00:22<02:01,  5.51s/it]Evaluating:  16% 4/25 [00:23<01:21,  3.89s/it]Evaluating:  20% 5/25 [00:25<01:00,  3.01s/it]Evaluating:  24% 6/25 [00:26<00:47,  2.48s/it]Evaluating:  28% 7/25 [00:28<00:38,  2.13s/it]Evaluating:  32% 8/25 [00:29<00:32,  1.91s/it]Evaluating:  36% 9/25 [00:31<00:28,  1.76s/it]Evaluating:  40% 10/25 [00:32<00:24,  1.66s/it]Evaluating:  44% 11/25 [00:33<00:22,  1.59s/it]Evaluating:  48% 12/25 [00:35<00:20,  1.55s/it]Evaluating:  52% 13/25 [00:36<00:18,  1.51s/it]Evaluating:  56% 14/25 [00:38<00:16,  1.49s/it]Evaluating:  60% 15/25 [00:39<00:14,  1.47s/it]Evaluating:  64% 16/25 [00:41<00:13,  1.47s/it]Evaluating:  68% 17/25 [00:42<00:11,  1.46s/it]Evaluating:  72% 18/25 [00:44<00:10,  1.45s/it]Evaluating:  76% 19/25 [00:45<00:08,  1.45s/it]Evaluating:  80% 20/25 [00:46<00:06,  1.37s/it]Evaluating:  84% 21/25 [00:48<00:05,  1.38s/it]Evaluating:  88% 22/25 [00:49<00:04,  1.39s/it]Evaluating:  92% 23/25 [00:50<00:02,  1.33s/it]Evaluating:  96% 24/25 [00:52<00:01,  1.37s/it]Evaluating: 100% 25/25 [00:53<00:00,  1.38s/it]Evaluating: 100% 25/25 [00:53<00:00,  2.14s/it]
-[I 230527 16:09:43 texts:32] Loading predictions for 
-Evaluating:   0% 0/25 [00:00<?, ?it/s]Evaluating:   4% 1/25 [00:01<00:42,  1.77s/it]Evaluating:   8% 2/25 [00:03<00:36,  1.58s/it]Evaluating:  12% 3/25 [00:04<00:33,  1.51s/it]Evaluating:  16% 4/25 [00:06<00:31,  1.49s/it]Evaluating:  20% 5/25 [00:07<00:29,  1.47s/it]Evaluating:  24% 6/25 [00:08<00:27,  1.45s/it]Evaluating:  28% 7/25 [00:10<00:26,  1.45s/it]Evaluating:  32% 8/25 [00:11<00:24,  1.45s/it]Evaluating:  36% 9/25 [00:13<00:23,  1.44s/it]Evaluating:  40% 10/25 [00:14<00:21,  1.45s/it]Evaluating:  44% 11/25 [00:16<00:20,  1.44s/it]Evaluating:  48% 12/25 [00:17<00:18,  1.44s/it]Evaluating:  52% 13/25 [00:19<00:17,  1.45s/it]Evaluating:  56% 14/25 [00:20<00:14,  1.31s/it]Evaluating:  60% 15/25 [00:21<00:13,  1.34s/it]Evaluating:  64% 16/25 [00:22<00:12,  1.36s/it]Evaluating:  68% 17/25 [00:24<00:11,  1.38s/it]Evaluating:  72% 18/25 [00:25<00:09,  1.40s/it]Evaluating:  76% 19/25 [00:27<00:08,  1.40s/it]Evaluating:  80% 20/25 [00:28<00:07,  1.41s/it]Evaluating:  84% 21/25 [00:29<00:05,  1.41s/it]Evaluating:  88% 22/25 [00:31<00:04,  1.41s/it]Evaluating:  92% 23/25 [00:32<00:02,  1.42s/it]Evaluating:  96% 24/25 [00:34<00:01,  1.42s/it]Evaluating: 100% 25/25 [00:35<00:00,  1.42s/it]Evaluating: 100% 25/25 [00:35<00:00,  1.43s/it]
-[I 230527 16:10:22 texts:32] Loading predictions for 
-Process ForkServerProcess-2:
-Traceback (most recent call last):
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/multiprocessing/process.py", line 315, in _bootstrap
-    self.run()
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/multiprocessing/process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/site-packages/stable_baselines3/common/vec_env/subproc_vec_env.py", line 29, in _worker
-    observation, reward, done, info = env.step(data)
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/site-packages/stable_baselines3/common/monitor.py", line 90, in step
-    observation, reward, done, info = self.env.step(action)
-  File "/p/fewshot/RL4LMs/rl4lms/envs/text_generation/env.py", line 123, in step
-    else self.reward_function(
-  File "/p/fewshot/RL4LMs/rl4lms/envs/text_generation/reward.py", line 779, in __call__
-    metric_results = self._info_metric.compute(generated_texts=predicted, reference_texts=references)
-TypeError: compute() missing 1 required positional argument: 'prompt_texts'
-Traceback (most recent call last):
-  File "/p/fewshot/RL4LMs/scripts/training/train_text_generation.py", line 84, in <module>
-    main(
-  File "/p/fewshot/RL4LMs/scripts/training/train_text_generation.py", line 55, in main
-    trainer.train_and_eval()
-  File "/p/fewshot/RL4LMs/rl4lms/envs/text_generation/training_utils.py", line 206, in train_and_eval
-    self._alg.learn(self._n_steps_per_iter)
-  File "/p/fewshot/RL4LMs/rl4lms/algorithms/ppo/ppo.py", line 342, in learn
-    return super().learn(
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/site-packages/stable_baselines3/common/on_policy_algorithm.py", line 247, in learn
-    continue_training = self.collect_rollouts(self.env, callback, self.rollout_buffer, n_rollout_steps=self.n_steps)
-  File "/p/fewshot/RL4LMs/rl4lms/envs/text_generation/alg_wrappers.py", line 384, in collect_rollouts
-    rollout_info = self.generate_batch(
-  File "/p/fewshot/RL4LMs/rl4lms/envs/text_generation/alg_wrappers.py", line 243, in generate_batch
-    new_obs, rewards, dones, infos = self.env.step(actions)
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/site-packages/stable_baselines3/common/vec_env/base_vec_env.py", line 162, in step
-    return self.step_wait()
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/site-packages/stable_baselines3/common/vec_env/subproc_vec_env.py", line 120, in step_wait
-    results = [remote.recv() for remote in self.remotes]
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/site-packages/stable_baselines3/common/vec_env/subproc_vec_env.py", line 120, in <listcomp>
-    results = [remote.recv() for remote in self.remotes]
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/multiprocessing/connection.py", line 250, in recv
-    buf = self._recv_bytes()
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/multiprocessing/connection.py", line 414, in _recv_bytes
-    buf = self._recv(4)
-  File "/u/wd5jq/.conda/envs/slurm/lib/python3.9/multiprocessing/connection.py", line 383, in _recv
-    raise EOFError
-EOFError
-wandb: Waiting for W&B process to finish... (failed 1). Press Control-C to abort syncing.
-wandb: - 0.821 MB of 0.821 MB uploaded (0.000 MB deduped)wandb: \ 0.821 MB of 0.821 MB uploaded (0.000 MB deduped)wandb: | 0.821 MB of 0.821 MB uploaded (0.000 MB deduped)wandb: / 0.821 MB of 1.037 MB uploaded (0.000 MB deduped)wandb: - 0.821 MB of 1.037 MB uploaded (0.000 MB deduped)wandb: \ 1.037 MB of 1.037 MB uploaded (0.000 MB deduped)wandb: | 1.037 MB of 1.037 MB uploaded (0.000 MB deduped)wandb: / 1.037 MB of 1.037 MB uploaded (0.000 MB deduped)wandb: - 1.037 MB of 1.037 MB uploaded (0.000 MB deduped)wandb: \ 1.037 MB of 1.037 MB uploaded (0.000 MB deduped)wandb: | 1.037 MB of 1.037 MB uploaded (0.000 MB deduped)wandb:                                                                                
-wandb: 
-wandb: Run history:
-wandb:                                             epoch ▁▁
-wandb:             test/diversity_metrics/cond_entropy-2 ▁
-wandb:     test/diversity_metrics/cond_entropy-2-nopunct ▁
-wandb:             test/diversity_metrics/cond_entropy-3 ▁
-wandb:     test/diversity_metrics/cond_entropy-3-nopunct ▁
-wandb:                 test/diversity_metrics/distinct-1 ▁
-wandb:         test/diversity_metrics/distinct-1-nopunct ▁
-wandb:                 test/diversity_metrics/distinct-2 ▁
-wandb:         test/diversity_metrics/distinct-2-nopunct ▁
-wandb:                 test/diversity_metrics/distinct-3 ▁
-wandb:         test/diversity_metrics/distinct-3-nopunct ▁
-wandb:                  test/diversity_metrics/entropy-1 ▁
-wandb:          test/diversity_metrics/entropy-1-nopunct ▁
-wandb:                  test/diversity_metrics/entropy-2 ▁
-wandb:          test/diversity_metrics/entropy-2-nopunct ▁
-wandb:                  test/diversity_metrics/entropy-3 ▁
-wandb:          test/diversity_metrics/entropy-3-nopunct ▁
-wandb:            test/diversity_metrics/max_pred_length ▁
-wandb:    test/diversity_metrics/max_pred_length-nopunct ▁
-wandb:           test/diversity_metrics/mean_pred_length ▁
-wandb:   test/diversity_metrics/mean_pred_length-nopunct ▁
-wandb:         test/diversity_metrics/median_pred_length ▁
-wandb: test/diversity_metrics/median_pred_length-nopunct ▁
-wandb:            test/diversity_metrics/min_pred_length ▁
-wandb:    test/diversity_metrics/min_pred_length-nopunct ▁
-wandb:                  test/diversity_metrics/msttr-100 ▁
-wandb:          test/diversity_metrics/msttr-100_nopunct ▁
-wandb:            test/diversity_metrics/std_pred_length ▁
-wandb:    test/diversity_metrics/std_pred_length-nopunct ▁
-wandb:               test/diversity_metrics/total_length ▁
-wandb:       test/diversity_metrics/total_length-nopunct ▁
-wandb:                   test/diversity_metrics/unique-1 ▁
-wandb:           test/diversity_metrics/unique-1-nopunct ▁
-wandb:                   test/diversity_metrics/unique-2 ▁
-wandb:           test/diversity_metrics/unique-2-nopunct ▁
-wandb:                   test/diversity_metrics/unique-3 ▁
-wandb:           test/diversity_metrics/unique-3-nopunct ▁
-wandb:               test/diversity_metrics/vocab_size-1 ▁
-wandb:       test/diversity_metrics/vocab_size-1-nopunct ▁
-wandb:               test/diversity_metrics/vocab_size-2 ▁
-wandb:       test/diversity_metrics/vocab_size-2-nopunct ▁
-wandb:               test/diversity_metrics/vocab_size-3 ▁
-wandb:       test/diversity_metrics/vocab_size-3-nopunct ▁
-wandb:                         test/lexical/bert_know_f1 ▁
-wandb:                         test/lexical/knowledge_f1 ▁
-wandb:                               test/lexical/meteor ▁
-wandb:                         test/lexical/rouge_rouge1 ▁
-wandb:                         test/lexical/rouge_rouge2 ▁
-wandb:                         test/lexical/rouge_rougeL ▁
-wandb:                      test/lexical/rouge_rougeLsum ▁
-wandb:                            test/lexical/sacrebleu ▁
-wandb:                          test/semantic/bert_score ▁
-wandb:              val/diversity_metrics/cond_entropy-2 ▁
-wandb:      val/diversity_metrics/cond_entropy-2-nopunct ▁
-wandb:              val/diversity_metrics/cond_entropy-3 ▁
-wandb:      val/diversity_metrics/cond_entropy-3-nopunct ▁
-wandb:                  val/diversity_metrics/distinct-1 ▁
-wandb:          val/diversity_metrics/distinct-1-nopunct ▁
-wandb:                  val/diversity_metrics/distinct-2 ▁
-wandb:          val/diversity_metrics/distinct-2-nopunct ▁
-wandb:                  val/diversity_metrics/distinct-3 ▁
-wandb:          val/diversity_metrics/distinct-3-nopunct ▁
-wandb:                   val/diversity_metrics/entropy-1 ▁
-wandb:           val/diversity_metrics/entropy-1-nopunct ▁
-wandb:                   val/diversity_metrics/entropy-2 ▁
-wandb:           val/diversity_metrics/entropy-2-nopunct ▁
-wandb:                   val/diversity_metrics/entropy-3 ▁
-wandb:           val/diversity_metrics/entropy-3-nopunct ▁
-wandb:             val/diversity_metrics/max_pred_length ▁
-wandb:     val/diversity_metrics/max_pred_length-nopunct ▁
-wandb:            val/diversity_metrics/mean_pred_length ▁
-wandb:    val/diversity_metrics/mean_pred_length-nopunct ▁
-wandb:          val/diversity_metrics/median_pred_length ▁
-wandb:  val/diversity_metrics/median_pred_length-nopunct ▁
-wandb:             val/diversity_metrics/min_pred_length ▁
-wandb:     val/diversity_metrics/min_pred_length-nopunct ▁
-wandb:                   val/diversity_metrics/msttr-100 ▁
-wandb:           val/diversity_metrics/msttr-100_nopunct ▁
-wandb:             val/diversity_metrics/std_pred_length ▁
-wandb:     val/diversity_metrics/std_pred_length-nopunct ▁
-wandb:                val/diversity_metrics/total_length ▁
-wandb:        val/diversity_metrics/total_length-nopunct ▁
-wandb:                    val/diversity_metrics/unique-1 ▁
-wandb:            val/diversity_metrics/unique-1-nopunct ▁
-wandb:                    val/diversity_metrics/unique-2 ▁
-wandb:            val/diversity_metrics/unique-2-nopunct ▁
-wandb:                    val/diversity_metrics/unique-3 ▁
-wandb:            val/diversity_metrics/unique-3-nopunct ▁
-wandb:                val/diversity_metrics/vocab_size-1 ▁
-wandb:        val/diversity_metrics/vocab_size-1-nopunct ▁
-wandb:                val/diversity_metrics/vocab_size-2 ▁
-wandb:        val/diversity_metrics/vocab_size-2-nopunct ▁
-wandb:                val/diversity_metrics/vocab_size-3 ▁
-wandb:        val/diversity_metrics/vocab_size-3-nopunct ▁
-wandb:                          val/lexical/bert_know_f1 ▁
-wandb:                          val/lexical/knowledge_f1 ▁
-wandb:                                val/lexical/meteor ▁
-wandb:                          val/lexical/rouge_rouge1 ▁
-wandb:                          val/lexical/rouge_rouge2 ▁
-wandb:                          val/lexical/rouge_rougeL ▁
-wandb:                       val/lexical/rouge_rougeLsum ▁
-wandb:                             val/lexical/sacrebleu ▁
-wandb:                           val/semantic/bert_score ▁
-wandb: 
-wandb: Run summary:
-wandb:                                             epoch 0
-wandb:             test/diversity_metrics/cond_entropy-2 2.44811
-wandb:     test/diversity_metrics/cond_entropy-2-nopunct 2.34877
-wandb:             test/diversity_metrics/cond_entropy-3 0.51863
-wandb:     test/diversity_metrics/cond_entropy-3-nopunct 0.49103
-wandb:                 test/diversity_metrics/distinct-1 0.17291
-wandb:         test/diversity_metrics/distinct-1-nopunct 0.18607
-wandb:                 test/diversity_metrics/distinct-2 0.48363
-wandb:         test/diversity_metrics/distinct-2-nopunct 0.49362
-wandb:                 test/diversity_metrics/distinct-3 0.61683
-wandb:         test/diversity_metrics/distinct-3-nopunct 0.6224
-wandb:                  test/diversity_metrics/entropy-1 7.57396
-wandb:          test/diversity_metrics/entropy-1-nopunct 7.63341
-wandb:                  test/diversity_metrics/entropy-2 10.05509
-wandb:          test/diversity_metrics/entropy-2-nopunct 9.95052
-wandb:                  test/diversity_metrics/entropy-3 10.56518
-wandb:          test/diversity_metrics/entropy-3-nopunct 10.43569
-wandb:            test/diversity_metrics/max_pred_length 49
-wandb:    test/diversity_metrics/max_pred_length-nopunct 46
-wandb:           test/diversity_metrics/mean_pred_length 31.23
-wandb:   test/diversity_metrics/mean_pred_length-nopunct 28.43
-wandb:         test/diversity_metrics/median_pred_length 32.5
-wandb: test/diversity_metrics/median_pred_length-nopunct 30.0
-wandb:            test/diversity_metrics/min_pred_length 7
-wandb:    test/diversity_metrics/min_pred_length-nopunct 7
-wandb:                  test/diversity_metrics/msttr-100 0.57968
-wandb:          test/diversity_metrics/msttr-100_nopunct 0.5825
-wandb:            test/diversity_metrics/std_pred_length 10.99987
-wandb:    test/diversity_metrics/std_pred_length-nopunct 10.32497
-wandb:               test/diversity_metrics/total_length 3123
-wandb:       test/diversity_metrics/total_length-nopunct 2843
-wandb:                   test/diversity_metrics/unique-1 196
-wandb:           test/diversity_metrics/unique-1-nopunct 196
-wandb:                   test/diversity_metrics/unique-2 821
-wandb:           test/diversity_metrics/unique-2-nopunct 773
-wandb:                   test/diversity_metrics/unique-3 1167
-wandb:           test/diversity_metrics/unique-3-nopunct 1075
-wandb:               test/diversity_metrics/vocab_size-1 540
-wandb:       test/diversity_metrics/vocab_size-1-nopunct 529
-wandb:               test/diversity_metrics/vocab_size-2 1462
-wandb:       test/diversity_metrics/vocab_size-2-nopunct 1354
-wandb:               test/diversity_metrics/vocab_size-3 1803
-wandb:       test/diversity_metrics/vocab_size-3-nopunct 1645
-wandb:                         test/lexical/bert_know_f1 0.89749
-wandb:                         test/lexical/knowledge_f1 0.44394
-wandb:                               test/lexical/meteor 0.29489
-wandb:                         test/lexical/rouge_rouge1 0.33103
-wandb:                         test/lexical/rouge_rouge2 0.19112
-wandb:                         test/lexical/rouge_rougeL 0.29091
-wandb:                      test/lexical/rouge_rougeLsum 0.29309
-wandb:                            test/lexical/sacrebleu 0.1528
-wandb:                          test/semantic/bert_score 0.88384
-wandb:              val/diversity_metrics/cond_entropy-2 2.54949
-wandb:      val/diversity_metrics/cond_entropy-2-nopunct 2.47426
-wandb:              val/diversity_metrics/cond_entropy-3 0.61785
-wandb:      val/diversity_metrics/cond_entropy-3-nopunct 0.59522
-wandb:                  val/diversity_metrics/distinct-1 0.16672
-wandb:          val/diversity_metrics/distinct-1-nopunct 0.17911
-wandb:                  val/diversity_metrics/distinct-2 0.47077
-wandb:          val/diversity_metrics/distinct-2-nopunct 0.47945
-wandb:                  val/diversity_metrics/distinct-3 0.61387
-wandb:          val/diversity_metrics/distinct-3-nopunct 0.61943
-wandb:                   val/diversity_metrics/entropy-1 7.51758
-wandb:           val/diversity_metrics/entropy-1-nopunct 7.57029
-wandb:                   val/diversity_metrics/entropy-2 10.10435
-wandb:           val/diversity_metrics/entropy-2-nopunct 10.00307
-wandb:                   val/diversity_metrics/entropy-3 10.7094
-wandb:           val/diversity_metrics/entropy-3-nopunct 10.58781
-wandb:             val/diversity_metrics/max_pred_length 49
-wandb:     val/diversity_metrics/max_pred_length-nopunct 45
-wandb:            val/diversity_metrics/mean_pred_length 34.01
-wandb:    val/diversity_metrics/mean_pred_length-nopunct 30.93
-wandb:          val/diversity_metrics/median_pred_length 35.0
-wandb:  val/diversity_metrics/median_pred_length-nopunct 33.0
-wandb:             val/diversity_metrics/min_pred_length 11
-wandb:     val/diversity_metrics/min_pred_length-nopunct 11
-wandb:                   val/diversity_metrics/msttr-100 0.55529
-wandb:           val/diversity_metrics/msttr-100_nopunct 0.548
-wandb:             val/diversity_metrics/std_pred_length 10.08315
-wandb:     val/diversity_metrics/std_pred_length-nopunct 9.44802
-wandb:                val/diversity_metrics/total_length 3401
-wandb:        val/diversity_metrics/total_length-nopunct 3093
-wandb:                    val/diversity_metrics/unique-1 225
-wandb:            val/diversity_metrics/unique-1-nopunct 224
-wandb:                    val/diversity_metrics/unique-2 826
-wandb:            val/diversity_metrics/unique-2-nopunct 768
-wandb:                    val/diversity_metrics/unique-3 1203
-wandb:            val/diversity_metrics/unique-3-nopunct 1100
-wandb:                val/diversity_metrics/vocab_size-1 567
-wandb:        val/diversity_metrics/vocab_size-1-nopunct 554
-wandb:                val/diversity_metrics/vocab_size-2 1554
-wandb:        val/diversity_metrics/vocab_size-2-nopunct 1435
-wandb:                val/diversity_metrics/vocab_size-3 1965
-wandb:        val/diversity_metrics/vocab_size-3-nopunct 1792
-wandb:                          val/lexical/bert_know_f1 0.89987
-wandb:                          val/lexical/knowledge_f1 0.44349
-wandb:                                val/lexical/meteor 0.31683
-wandb:                          val/lexical/rouge_rouge1 0.36606
-wandb:                          val/lexical/rouge_rouge2 0.23499
-wandb:                          val/lexical/rouge_rougeL 0.33104
-wandb:                       val/lexical/rouge_rougeLsum 0.33122
-wandb:                             val/lexical/sacrebleu 0.18251
-wandb:                           val/semantic/bert_score 0.88751
-wandb: 
-wandb: Synced t5-mdd-supervised-ppo-1k-combined028-span-reward: https://wandb.ai/wyu-du/rl4lm_exps/runs/2pfpoi4l
-wandb: Synced 6 W&B file(s), 2 media file(s), 2 artifact file(s) and 0 other file(s)
-wandb: Find logs at: ./wandb/run-20230527_160650-2pfpoi4l/logs
