@@ -277,7 +277,7 @@ class SupervisedTrainer:
         for split in splits:
             evaluate_supervised(model=self._model,
                                 tokenizer=self._tokenizer,
-                                samples=self._samples_by_split[split][:100],
+                                samples=self._samples_by_split[split],
                                 batch_size=self._eval_batch_size,
                                 max_prompt_length=self._max_prompt_length,
                                 metrics_config_dict=self._metrics_config_dict,

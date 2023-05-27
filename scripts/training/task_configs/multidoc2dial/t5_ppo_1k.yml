@@ -5,12 +5,10 @@ tokenizer:
   pad_token_as_eos_token: False
 
 reward_fn:
-  id: ours_combined
-  args: 
-    batch_size: 4
+  id: ours_combined_span
+  args:
     cof_info: 0.28
     cof_faith: 0.72
-    cof_coherence: 0.
     language: en
   # id: sacre_bleu
   # id: rouge_l_max
@@ -65,7 +63,7 @@ alg:
   policy:
     id: seq2seq_lm_actor_critic_policy
     args:
-      model_name: ckpts/t5-base-mdd-supervised-new/model
+      model_name: rl4lm_exps/t5-mdd-supervised-1k-span-only-e5/model
       apply_model_parallel: True
       prompt_truncation_side: "right"
       generation_kwargs:
@@ -79,16 +77,10 @@ train_evaluation:
   eval_every: 100
   save_every: 100
   metrics:
-    - id: mdd_coherence
-      args: 
-        batch_size: 4
     - id: sacre_bleu
     - id: meteor
     - id: rouge
     - id: bert_score
-      args:
-        language: en
-    - id: bert_precision
       args:
         language: en
     - id: bert_know_f1

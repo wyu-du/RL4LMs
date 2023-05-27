@@ -862,7 +862,7 @@ class BERTF1Metric(BaseMetric):
             bert_scores = metric_results["f1"]
             corpus_level_score = np.mean(bert_scores)
             metric_dict = {"lexical/bert_know_f1": (bert_scores, corpus_level_score)}
-            return metric_dict
+        return metric_dict
 
 
 class KnowledgeF1Metric(BaseMetric):

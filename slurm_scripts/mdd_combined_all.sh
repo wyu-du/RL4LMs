@@ -12,8 +12,9 @@ echo "$HOSTNAME"
 # export MASTER_ADDR="127.0.0.1" # change this and the following line if needed
 # export MASTER_PORT="10020" 
 # export OMP_NUM_THREADS=1
-CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/train_text_generation.py \
+CUDA_VISIBLE_DEVICES=4,5,6,7 python scripts/training/train_text_generation.py \
 --config_path scripts/training/task_configs/multidoc2dial/t5_ppo_on_supervised.yml \
---experiment_name t5-mdd-supervised-ppo-1k-new \
+--project_name rl4lm_exps \
+--experiment_name t5-mdd-supervised-ppo-all-combined \
 --entity_name wyu-du \
 --log_to_wandb 

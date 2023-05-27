@@ -79,19 +79,13 @@ train_evaluation:
   eval_every: 100
   save_every: 100
   metrics:
-    - id: mdd_coherence
-      args: 
-        batch_size: 8
     - id: sacre_bleu
-      args: {}
     - id: meteor
-      args: {}
     - id: rouge
-      args: {}
     - id: bert_score
       args:
         language: en
-    - id: bert_precision
+    - id: bert_know_f1
       args:
         language: en
     - id: knowledge_f1

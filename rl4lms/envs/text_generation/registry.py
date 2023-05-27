@@ -81,9 +81,10 @@ from rl4lms.envs.text_generation.reward import (
     SpiderRewardFunction,
     chrF,
     IntentAccuracy,
-    BERTPrecisionRewardFunction,
+    BERTKnowF1RewardFunction,
     CoherenceMDDRewardFunction,
     CombinedRewardFunction,
+    CombinedRewardWithSpanFunction,
 )
 from rl4lms.envs.text_generation.preference_reward import CommonGenPrefRM
 from rl4lms.envs.text_generation.test_datapool import TestTextGenPool
@@ -146,9 +147,10 @@ class RewardFunctionRegistry:
         "chrf": chrF,
         "intent_accuracy": IntentAccuracy,
         "common_gen_preference_model": CommonGenPrefRM,
-        "bert_precision": BERTPrecisionRewardFunction,
+        "bert_know_f1": BERTKnowF1RewardFunction,
         'mdd_coherence': CoherenceMDDRewardFunction,
         'ours_combined': CombinedRewardFunction,
+        'ours_combined_span': CombinedRewardWithSpanFunction,
     }
 
     @classmethod

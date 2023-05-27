@@ -62,18 +62,16 @@ def read_best_dev(args):
     total_scores_dict = {}
     for line in lines:
         obj = json.loads(line)
-        if obj['epoch'] < 3099: continue
+        if obj['epoch'] == 0: continue
         total_score = 0
         for key, val in obj['metrics'].items():
-            if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'lexical/bert_know_f1', 
-                       'semantic/bert_score', 'lexical/bert_precision', 'lexical/knowledge_f1']:
-                # if key == 'lexical/sacrebleu':
-                #     total_score += val * 0.38
-                # if key == 'lexical/bert_know_f1':
-                #     total_score += val * 0.62
-                # if key == 'lexical/coherence':
-                #     total_score += val * 0.3
-                total_score += val
+            if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'semantic/bert_score', 
+                        'lexical/bert_know_f1', 'lexical/knowledge_f1']:
+                if key == 'lexical/sacrebleu':
+                    total_score += val * 0.28
+                if key == 'lexical/bert_know_f1':
+                    total_score += val * 0.72
+                # total_score += val
         total_scores_dict[obj['epoch']] = total_score
     max_key = max(total_scores_dict, key=total_scores_dict.get)
     # max_key = 199
@@ -84,8 +82,8 @@ def read_best_dev(args):
         obj = json.loads(line)
         if obj['epoch'] == max_key:
             for key, val in obj['metrics'].items():
-                if key in ['lexical/coherence', 'lexical/sacrebleu', 'lexical/rouge_rougeL', 
-                        'semantic/bert_score', 'lexical/bert_precision', 'lexical/bert_know_f1', 'lexical/knowledge_f1']:
+                if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'semantic/bert_score', 
+                           'lexical/bert_know_f1', 'lexical/knowledge_f1']:
                     print(f'{key}: {val}')
 
     

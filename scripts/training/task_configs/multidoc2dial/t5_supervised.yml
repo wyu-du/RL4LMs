@@ -5,14 +5,14 @@ tokenizer:
   pad_token_as_eos_token: False 
 
 datapool:
-  id: multidoc2dial_sp_insert
+  id: multidoc2dial_sp_only
 
 alg:
   id: supervised
   training_args:
     per_device_train_batch_size: 8 
     logging_steps: 1000
-    num_train_epochs: 5
+    num_train_epochs: 10
     weight_decay: 0.01
     lr_scheduler_type: linear
     learning_rate: 0.00001
@@ -28,16 +28,10 @@ alg:
 train_evaluation:
   eval_batch_size: 16
   metrics:
-    - id: mdd_coherence
-      args: 
-        batch_size: 4
     - id: sacre_bleu
     - id: meteor
     - id: rouge
     - id: bert_score
-      args:
-        language: en
-    - id: bert_precision
       args:
         language: en
     - id: bert_know_f1
