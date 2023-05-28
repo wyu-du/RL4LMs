@@ -12,6 +12,51 @@ import zipfile
 import json
 
 
+class FaithDial(TextGenPool):
+    @classmethod
+    def prepare(cls, split: str):
+        dataset = load_dataset("McGill-NLP/FaithDial")
+        split_id = FaithDial.gen_split_name(split)
+        data = dataset[split_id]
+
+        samples = []
+        for ix, example in enumerate(data):
+            prev = ''
+            for i, utt in enumerate(example['history'][:-1][::-1]):
+                if i % 2 == 0:
+                    prev += f"agent: {utt}||"
+                else:
+                    prev += f"user: {utt}||"
+            prev = prev.strip('||')
+            curr = example['history'][-1]
+            question = ' '.join(f"{curr}[SEP]{prev}".split(' ')[:150])
+
+            p = example['knowledge']
+            input_text = f'question: {question} context: {p}'
+            answers = [example['response']]
+
+            sample = Sample(id=f"{split}_{ix}",
+                            prompt_or_input_text=input_text,
+                            references=answers,
+                            meta_data={'knowledge_passage': example['knowledge']})
+            samples.append(sample)
+
+        dp_instance = cls(samples)
+        return dp_instance
+    
+    @staticmethod
+    def gen_split_name(split: str):
+        if split == "train":
+            split_name = "train"
+        elif split == "val":
+            split_name = "validation"
+        elif split == "test":
+            split_name = "test"
+        else:
+            raise NotImplementedError
+        return split_name
+
+
 class MultiDoc2Dial_Sp_Only(TextGenPool):
     @classmethod
     def prepare(cls, split: str):
@@ -660,6 +705,7 @@ class DailyDialog(TextGenPool):
 if __name__ == "__main__":
     from transformers import AutoTokenizer
     import numpy as np
-    dp = IMDB.prepare("test", 42)
-    print(dp[0])
+    # dp = IMDB.prepare("test", 42)
+    dp = FaithDial.prepare("test")
+    print(dp[3])
     

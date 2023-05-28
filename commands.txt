@@ -1,8 +1,8 @@
 # Fine-tune supervised
 CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/train_text_generation.py \
---config_path scripts/training/task_configs/multidoc2dial/t5_supervised.yml \
+--config_path scripts/training/task_configs/faithdial/t5_supervised.yml \
 --project_name rl4lm_exps \
---experiment_name t5-base-mdd-supervised \
+--experiment_name t5-base-fd-supervised \
 --entity_name wyu-du \
 --log_to_wandb 
 
@@ -23,10 +23,10 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/hyper_search_test.py \
 --log_to_wandb 
 
 # PPO eval
-CUDA_VISIBLE_DEVICES=7 python scripts/training/eval_text_generation.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/eval_text_generation.py \
 --config_path scripts/training/task_configs/multidoc2dial/t5_ppo_eval.yml \
 --project_name rl4lm_exps \
---experiment_name t5-mdd-supervised-ppo-1k-combined028
+--experiment_name t5-mdd-supervised-full-no-span
 
 CUDA_VISIBLE_DEVICES=7 python scripts/training/get_best_dev_scores.py \
 --config_path scripts/training/task_configs/multidoc2dial/t5_ppo_eval.yml \

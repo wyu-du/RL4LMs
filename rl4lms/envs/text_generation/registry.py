@@ -23,6 +23,7 @@ from rl4lms.data_pools.custom_text_generation_pools import (
     MultiDoc2Dial,
     MultiDoc2Dial_Sp_Only,
     MultiDoc2Dial_Sp_Insert,
+    FaithDial,
 )
 from rl4lms.data_pools.text_generation_pool import TextGenPool
 from rl4lms.envs.text_generation.alg_wrappers import wrap_onpolicy_alg
@@ -113,6 +114,7 @@ class DataPoolRegistry:
         "multidoc2dial": MultiDoc2Dial,
         "multidoc2dial_sp_only": MultiDoc2Dial_Sp_Only,
         "multidoc2dial_sp_insert": MultiDoc2Dial_Sp_Insert,
+        "faithdial": FaithDial,
     }
 
     @classmethod

@@ -1,0 +1,43 @@
+tokenizer:
+  model_name: t5-base
+  padding_side: left
+  truncation_side: right
+  pad_token_as_eos_token: False 
+
+datapool:
+  id: faithdial
+
+alg:
+  id: supervised
+  training_args:
+    per_device_train_batch_size: 8 
+    logging_steps: 1000
+    num_train_epochs: 5
+    weight_decay: 0.01
+    lr_scheduler_type: linear
+    learning_rate: 0.00001
+    save_total_limit: 5
+  model_type: seq2seq
+  model_name: rl4lm_exps/t5-mdd-supervised-1k-span-insert-e5/model
+  generation_kwargs:
+    num_beams: 5
+    min_length: 5
+    max_new_tokens: 50
+    post_processing_fn: null
+
+train_evaluation:
+  eval_batch_size: 16
+  metrics:
+    - id: sacre_bleu
+    - id: meteor
+    - id: rouge
+    - id: bert_score
+      args:
+        language: en
+    - id: bert_know_f1
+      args:
+        language: en
+    - id: knowledge_f1
+    - id: diversity
+      args: {}
+

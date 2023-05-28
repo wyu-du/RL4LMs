@@ -1,60 +1,6 @@
 import os
 from argparse import ArgumentParser
-
-import yaml
-
-from rl4lms.envs.text_generation.logging_utils import Tracker
-from rl4lms.envs.text_generation.training_utils import (
-    OnPolicyTrainer,
-    SupervisedTrainer,
-)
 import json
-
-
-def main(
-    config_path: str,
-    project_name: str,
-    experiment_name: str,
-    base_path_to_store_results: str,
-    entity_name: str,
-    log_to_wandb: bool,
-):
-
-    # load the config file
-    with open(config_path, "r") as fp:
-        config = yaml.safe_load(fp)
-
-    # load tracker
-    tracker = Tracker(
-        base_path_to_store_results,
-        config,
-        project_name,
-        experiment_name,
-        entity_name,
-        log_to_wandb,
-    )
-
-    # instantiate the trainer here
-    if "supervised" in config["alg"]["id"]:
-        trainer = SupervisedTrainer(
-            tokenizer_config=config["tokenizer"],
-            datapool_config=config["datapool"],
-            alg_config=config["alg"],
-            train_eval_config=config["train_evaluation"],
-            tracker=tracker,
-        )
-    else:
-        trainer = OnPolicyTrainer(
-            tokenizer_config=config["tokenizer"],
-            datapool_config=config["datapool"],
-            reward_config=config["reward_fn"],
-            env_config=config["env"],
-            on_policy_alg_config=config["alg"],
-            train_eval_config=config["train_evaluation"],
-            tracker=tracker,
-        )
-    iter_start = trainer._trainer_state["current_iter"]
-    trainer._evaluate_on_datapools(epoch=iter_start, splits=["val", "test"])
 
 def read_best_dev(args):
     with open(f'{args.project_name}/{args.experiment_name}/val_split_metrics.jsonl', 'r') as f:
@@ -114,14 +60,5 @@ if __name__ == "__main__":
         "--log_to_wandb", action="store_true", help="Whether to use wandb logging"
     )
     args = parser.parse_args()
-
-    # main(
-    #     args.config_path,
-    #     args.project_name,
-    #     args.experiment_name,
-    #     args.base_path_to_store_results,
-    #     args.entity_name,
-    #     args.log_to_wandb,
-    # )
 
     read_best_dev(args)

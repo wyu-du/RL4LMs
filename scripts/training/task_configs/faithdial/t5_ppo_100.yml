@@ -5,20 +5,17 @@ tokenizer:
   pad_token_as_eos_token: False
 
 reward_fn:
-  # id: sacre_bleu
-  # id: bert_know_f1
-  # id: mdd_coherence
   id: ours_combined
-  args:
-    cof_info: 0.28
-    cof_faith: 0.72
+  args: 
+    cof_info: 0.45
+    cof_faith: 0.45
     language: en
 
 datapool:
-  id: multidoc2dial
+  id: faithdial
 
 env:
-  n_envs: 4
+  n_envs: 2
   args:
     max_prompt_length: 350
     max_episode_length: 50
@@ -30,7 +27,7 @@ alg:
   id: ppo
   args:
     n_steps: 50
-    batch_size: 16
+    batch_size: 2
     verbose: 1
     learning_rate: 0.0000005
     n_epochs: 5
@@ -40,7 +37,7 @@ alg:
   policy:
     id: seq2seq_lm_actor_critic_policy
     args:
-      model_name: ckpts/t5-base-mdd-supervised/model
+      model_name: ckpts/t5-base-fd-supervised/model
       apply_model_parallel: True
       prompt_truncation_side: "right"
       generation_kwargs:
@@ -49,8 +46,8 @@ alg:
         max_new_tokens: 50
     
 train_evaluation:
-  eval_batch_size: 32
-  n_iters: 20000
+  eval_batch_size: 4
+  n_iters: 100
   eval_every: 100
   save_every: 100
   metrics:
@@ -64,8 +61,6 @@ train_evaluation:
       args:
         language: en
     - id: knowledge_f1
-    - id: diversity
-      args: {}
   generation_kwargs:
     num_beams: 4
     max_new_tokens: 50

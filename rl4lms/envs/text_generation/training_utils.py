@@ -183,7 +183,7 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
         for split in splits:
             evaluate_on_samples(policy=self._alg.policy,
                                 tokenizer=self._tokenizer,
-                                samples=self._samples_by_split[split][:100],
+                                samples=self._samples_by_split[split],
                                 batch_size=self._eval_batch_size,
                                 max_prompt_length=self._max_prompt_length,
                                 metrics=self._metrics,
@@ -247,8 +247,8 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
                                                     gen_kwargs=self._eval_gen_kwargs)
         total_scores = 0
         for key, val in corpus_level_metrics.items():
-            if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'lexical/bert_know_f1', 
-                       'semantic/bert_score', 'lexical/bert_precision', 'lexical/knowledge_f1']:
+            if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'semantic/bert_score',
+                       'lexical/bert_know_f1',  'lexical/knowledge_f1']:
                 total_scores += val
         return total_scores
 

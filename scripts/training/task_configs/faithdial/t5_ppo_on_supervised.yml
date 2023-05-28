@@ -15,7 +15,7 @@ reward_fn:
     language: en
 
 datapool:
-  id: multidoc2dial
+  id: faithdial
 
 env:
   n_envs: 4

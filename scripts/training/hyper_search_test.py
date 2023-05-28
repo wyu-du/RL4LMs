@@ -56,10 +56,8 @@ def objective(trial: optuna.Trial):
     # coherence_cofs = trial.suggest_float("cof_coherence", 0.0, 1.0, step=0.1)
 
     reward_config = {"id": 'ours_combined', 
-                     "args": {"batch_size": 4, 
-                              "cof_info": info_cofs, 
+                     "args": {"cof_info": info_cofs, 
                               "cof_faith": 1-info_cofs,
-                              "cof_coherence": 0.,
                               "language": 'en'}}
     total_scores = main(
         args.config_path,
