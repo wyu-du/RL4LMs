@@ -52,7 +52,7 @@ def main(
             train_eval_config=config["train_evaluation"],
             tracker=tracker,
         )
-    trainer._evaluate_on_datapools(epoch=10, splits=["val", "test"])
+    trainer._evaluate_on_datapools(epoch=10, splits=["train"])
 
 
 if __name__ == "__main__":

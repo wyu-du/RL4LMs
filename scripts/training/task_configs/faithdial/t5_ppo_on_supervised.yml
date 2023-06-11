@@ -7,12 +7,12 @@ tokenizer:
 reward_fn:
   # id: sacre_bleu
   # id: bert_know_f1
-  # id: mdd_coherence
-  id: ours_combined
-  args:
-    cof_info: 0.28
-    cof_faith: 0.72
-    language: en
+  id: fd_reward
+  # id: ours_combined
+  # args:
+  #   cof_info: 0.92
+  #   cof_faith: 0.08
+  #   language: en
 
 datapool:
   id: faithdial
@@ -40,7 +40,7 @@ alg:
   policy:
     id: seq2seq_lm_actor_critic_policy
     args:
-      model_name: ckpts/t5-base-mdd-supervised/model
+      model_name: /p/fewshot/RL4LMs/ckpts/t5-base-fd-supervised/model
       apply_model_parallel: True
       prompt_truncation_side: "right"
       generation_kwargs:
@@ -50,7 +50,7 @@ alg:
     
 train_evaluation:
   eval_batch_size: 32
-  n_iters: 20000
+  n_iters: 10000
   eval_every: 100
   save_every: 100
   metrics:

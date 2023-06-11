@@ -15,7 +15,7 @@ datapool:
   id: faithdial
 
 env:
-  n_envs: 2
+  n_envs: 4
   args:
     max_prompt_length: 350
     max_episode_length: 50
@@ -46,7 +46,7 @@ alg:
         max_new_tokens: 50
     
 train_evaluation:
-  eval_batch_size: 4
+  eval_batch_size: 32
   n_iters: 100
   eval_every: 100
   save_every: 100

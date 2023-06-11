@@ -790,6 +790,68 @@ class CombinedRewardWithSpanFunction(RewardFunction):
         return 0
 
 
+class MDDRewardFunction(RewardFunction):
+    def __init__(self, batch_size: int = 1) -> None:
+        super().__init__()
+        self._tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        self._model = AutoModelForSequenceClassification.from_pretrained(
+            "/p/fewshot/RL4LMs/ckpts/roberta-mdd-reward-model/checkpoint-13000"
+        )
+        self._device = "cuda" if torch.cuda.is_available() else "cpu"
+        self._model = self._model.to(self._device)
+        self._batch_size = batch_size
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split()[:100])
+            input_texts = [next_observation.context_text + '[SEP]' + truncated_prompt]
+            encoded = self._tokenizer(input_texts, truncation=True, max_length=256)
+            with torch.no_grad():
+                outputs = self._model(input_ids=encoded.input_ids.to(self._device),
+                                      attention_mask=encoded.attention_mask.to(self._device))
+                scores = torch.softmax(outputs['logits'], dim=-1)[:, -1].tolist() # ensure shape is (B)
+            return scores[0]
+        return 0
+    
+
+class FDRewardFunction(RewardFunction):
+    def __init__(self, batch_size: int = 1) -> None:
+        super().__init__()
+        self._tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        self._model = AutoModelForSequenceClassification.from_pretrained(
+            "/p/fewshot/RL4LMs/ckpts/roberta-fd-reward-model/checkpoint-11000"
+        )
+        self._device = "cuda" if torch.cuda.is_available() else "cpu"
+        self._model = self._model.to(self._device)
+        self._batch_size = batch_size
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split()[:100])
+            input_texts = [next_observation.context_text + '[SEP]' + truncated_prompt]
+            encoded = self._tokenizer(input_texts, return_tensors="pt", truncation=True, max_length=256)
+            with torch.no_grad():
+                outputs = self._model(input_ids=encoded.input_ids.to(self._device),
+                                      attention_mask=encoded.attention_mask.to(self._device))
+                scores = torch.softmax(outputs['logits'], dim=-1)[:, -1].tolist() 
+            return scores[0]
+        return 0
+
+
 if __name__ == "__main__":
     predictions = "hello there general kenobi"
     references = ["hello there general kenobi", "hello there!!"]

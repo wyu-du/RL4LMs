@@ -6,36 +6,6 @@ tokenizer:
 
 reward_fn:
   id: sacre_bleu
-  # id: ours_combined
-  # args: 
-  #   cof_info: 0.45
-  #   cof_faith: 0.45
-  #   language: en
-  # id: rouge_l_max
-  # args:
-  #   max_n: 4
-  #   limit_length: True
-  #   length_limit: 50
-  #   length_limit_type: "words"
-  #   apply_avg: True
-  #   apply_best: True
-  #   alpha: 0.5
-  #   weight_factor: 1.2
-  #   stemming: True
-  # expand: True
-  # values:
-  #   - id: rouge_l_max
-  #     args:
-  #       max_n: 4
-  #       limit_length: True
-  #       length_limit: 100
-  #       length_limit_type: "words"
-  #       apply_avg: True
-  #       apply_best: True
-  #       alpha: 0.5
-  #       weight_factor: 1.2
-  #       stemming: True
-  #   - id: rouge_combined
 
 datapool:
   id: multidoc2dial
@@ -63,7 +33,7 @@ alg:
   policy:
     id: seq2seq_lm_actor_critic_policy
     args:
-      model_name: ckpts/t5-base-mdd-supervised/model
+      model_name: /p/fewshot/RL4LMs/ckpts/t5-base-mdd-supervised/model
       apply_model_parallel: True
       prompt_truncation_side: "right"
       generation_kwargs:

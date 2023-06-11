@@ -13,11 +13,11 @@ def read_best_dev(args):
         for key, val in obj['metrics'].items():
             if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'semantic/bert_score', 
                         'lexical/bert_know_f1', 'lexical/knowledge_f1']:
-                if key == 'lexical/sacrebleu':
-                    total_score += val * 0.28
-                if key == 'lexical/bert_know_f1':
-                    total_score += val * 0.72
-                # total_score += val
+                # if key == 'lexical/sacrebleu':
+                #     total_score += val * 0.28
+                # if key == 'lexical/bert_know_f1':
+                #     total_score += val * 0.72
+                total_score += val
         total_scores_dict[obj['epoch']] = total_score
     max_key = max(total_scores_dict, key=total_scores_dict.get)
     # max_key = 199
@@ -31,7 +31,6 @@ def read_best_dev(args):
                 if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'semantic/bert_score', 
                            'lexical/bert_know_f1', 'lexical/knowledge_f1']:
                     print(f'{key}: {val}')
-
     
 
 

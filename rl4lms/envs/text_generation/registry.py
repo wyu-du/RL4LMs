@@ -86,6 +86,8 @@ from rl4lms.envs.text_generation.reward import (
     CoherenceMDDRewardFunction,
     CombinedRewardFunction,
     CombinedRewardWithSpanFunction,
+    MDDRewardFunction,
+    FDRewardFunction,
 )
 from rl4lms.envs.text_generation.preference_reward import CommonGenPrefRM
 from rl4lms.envs.text_generation.test_datapool import TestTextGenPool
@@ -153,6 +155,8 @@ class RewardFunctionRegistry:
         'mdd_coherence': CoherenceMDDRewardFunction,
         'ours_combined': CombinedRewardFunction,
         'ours_combined_span': CombinedRewardWithSpanFunction,
+        'mdd_reward': MDDRewardFunction,
+        'fd_reward': FDRewardFunction,
     }
 
     @classmethod

@@ -706,6 +706,7 @@ if __name__ == "__main__":
     from transformers import AutoTokenizer
     import numpy as np
     # dp = IMDB.prepare("test", 42)
-    dp = FaithDial.prepare("test")
-    print(dp[3])
+    # dp = FaithDial.prepare("train")
+    dp = MultiDoc2Dial.prepare("train")
+    print(dp[0])
     

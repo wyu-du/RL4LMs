@@ -139,3 +139,4 @@ ckpts/
 data/
 hf_caching_downloads/
 rl4lm_exps/
+scripts/openai_api_key
