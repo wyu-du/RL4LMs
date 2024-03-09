@@ -921,11 +921,23 @@ class KnowledgeF1Metric(BaseMetric):
         ]
 
         f1 = 0
+        f1_list = []
         for gen, ref in zip(generated_texts, knowledge_texts):
-            f1 += self.f1_score(gen, ref)
+            cur = self.f1_score(gen, ref)
+            f1 += cur
+            f1_list.append(cur)
         f1_score = f1 / len(generated_texts)
 
-        metric_dict = {"lexical/knowledge_f1": (None, f1_score)}
+        ref_f1 = 0
+        ref_f1_list = []
+        for gen, ref in zip(generated_texts, reference_texts):
+            cur = self.f1_score(gen, ref[0])
+            ref_f1 += cur
+            ref_f1_list.append(cur)
+        ref_f1_score = ref_f1 / len(generated_texts)
+
+        metric_dict = {"lexical/knowledge_f1": (f1_list, f1_score), 
+                       "lexical/reference_f1": (ref_f1_list, ref_f1_score)}
         return metric_dict
 
 

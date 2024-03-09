@@ -21,6 +21,42 @@ from rl4lms.envs.text_generation.metric import (
 )
 import numpy as np
 from typing import List, Dict, Any
+import regex
+import string
+from collections import Counter
+import pickle
+from sklearn.linear_model import LogisticRegression
+
+
+#Normalization from SQuAD evaluation script https://worksheets.codalab.org/rest/bundles/0x6b567e1cf2e041ec80d7098f031c5c9e/contents/blob/
+def normalize_answer(s):
+    def remove_articles(text):
+        return regex.sub(r'\b(a|an|the)\b', ' ', text)
+
+    def white_space_fix(text):
+        return ' '.join(text.split())
+
+    def remove_punc(text):
+        exclude = set(string.punctuation)
+        return ''.join(ch for ch in text if ch not in exclude)
+
+    def lower(text):
+        return text.lower()
+
+    return white_space_fix(remove_articles(remove_punc(lower(s))))
+
+
+def f1_score(prediction, ground_truth):
+    prediction_tokens = normalize_answer(prediction).split()
+    ground_truth_tokens = normalize_answer(ground_truth).split()
+    common = Counter(prediction_tokens) & Counter(ground_truth_tokens)
+    num_same = sum(common.values())
+    if num_same == 0:
+        return 0
+    precision = 1.0 * num_same / len(prediction_tokens)
+    recall = 1.0 * num_same / len(ground_truth_tokens)
+    f1 = (2 * precision * recall) / (precision + recall)
+    return f1
 
 
 class RewardFunction(ABC):
@@ -711,16 +747,54 @@ class CoherenceMDDRewardFunction(RewardFunction):
         return 0
 
 
+# class CombinedRewardFunction(RewardFunction):
+#     def __init__(self, 
+#                  language: str = "en", 
+#                  cof_info: float = 0.5,
+#                  cof_faith: float = 0.5) -> None:
+#         super().__init__()
+#         self._info_metric = load_metric("sacrebleu")
+#         self._faithful_metric = load_metric("bertscore")
+#         self._language = language
+#         self._last_gpu = f"cuda:{torch.cuda.device_count() - 1}"
+#         self.cof_info = cof_info
+#         self.cof_faith = cof_faith
+
+#     def __call__(
+#         self,
+#         current_observation: Observation,
+#         action: int,
+#         next_observation: Observation,
+#         done: bool,
+#         meta_info: Dict[str, Any] = None,
+#     ) -> float:
+#         if done:
+#             # accuracy score
+#             references = [next_observation.target_or_reference_texts]
+#             predicted = [next_observation.context_text]
+#             metric_results = self._info_metric.compute(predictions=predicted, references=references)
+#             info_score = metric_results["score"] / 100
+
+#             # faithfulness score
+#             truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
+#             prompts = [truncated_prompt]
+#             predicted = [next_observation.context_text]
+#             metric_results = self._faithful_metric.compute(predictions=predicted, references=prompts,
+#                                                            lang=self._language, device=self._last_gpu)
+#             bert_score = np.mean(metric_results["f1"])
+
+#             # total combined score
+#             score = self.cof_info*info_score + self.cof_faith*bert_score
+#             return score
+#         return 0
+    
+
 class CombinedRewardFunction(RewardFunction):
     def __init__(self, 
-                 language: str = "en", 
                  cof_info: float = 0.5,
                  cof_faith: float = 0.5) -> None:
         super().__init__()
         self._info_metric = load_metric("sacrebleu")
-        self._faithful_metric = load_metric("bertscore")
-        self._language = language
-        self._last_gpu = f"cuda:{torch.cuda.device_count() - 1}"
         self.cof_info = cof_info
         self.cof_faith = cof_faith
 
@@ -738,17 +812,19 @@ class CombinedRewardFunction(RewardFunction):
             predicted = [next_observation.context_text]
             metric_results = self._info_metric.compute(predictions=predicted, references=references)
             info_score = metric_results["score"] / 100
+            # ref_f1 = f1_score(predicted[0], references[0][0])
+            # print('ref_f1:', ref_f1)
 
             # faithfulness score
             truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
             prompts = [truncated_prompt]
             predicted = [next_observation.context_text]
-            metric_results = self._faithful_metric.compute(predictions=predicted, references=prompts,
-                                                           lang=self._language, device=self._last_gpu)
-            bert_score = np.mean(metric_results["f1"])
+            f1 = f1_score(predicted[0], prompts[0])
+            # print('know_f1:', f1)
 
             # total combined score
-            score = self.cof_info*info_score + self.cof_faith*bert_score
+            score = self.cof_info*info_score + self.cof_faith*f1
+            # print('combined:', score)
             return score
         return 0
 
@@ -812,7 +888,7 @@ class MDDRewardFunction(RewardFunction):
         if done:
             truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split()[:100])
             input_texts = [next_observation.context_text + '[SEP]' + truncated_prompt]
-            encoded = self._tokenizer(input_texts, truncation=True, max_length=256)
+            encoded = self._tokenizer(input_texts, return_tensors="pt", truncation=True, max_length=256)
             with torch.no_grad():
                 outputs = self._model(input_ids=encoded.input_ids.to(self._device),
                                       attention_mask=encoded.attention_mask.to(self._device))
@@ -852,36 +928,149 @@ class FDRewardFunction(RewardFunction):
         return 0
 
 
+class TokenKnowF1RewardFunction(RewardFunction):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            f1 = 0
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
+            prompts = [truncated_prompt]
+            predicted = [next_observation.context_text]
+            f1 = f1_score(predicted[0], prompts[0])
+            return f1
+        return 0
+    
+
+class TokenRefF1RewardFunction(RewardFunction):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            references = [next_observation.target_or_reference_texts]
+            predicted = [next_observation.context_text]
+            f1 = f1_score(predicted[0], references[0][0])
+            return f1
+        return 0
+    
+
+class CombinedRewardFunction_v2(RewardFunction):
+    def __init__(self, model_path: str = './ckpts/mdd_human_comparison.sav') -> None:
+        super().__init__()
+        self._info_metric = load_metric("sacrebleu")
+        # load model weight
+        with open(model_path, 'rb') as f:
+            self.model = pickle.load(f)
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            # accuracy score
+            references = [next_observation.target_or_reference_texts]
+            predicted = [next_observation.context_text]
+            metric_results = self._info_metric.compute(predictions=predicted, references=references)
+            info_score = metric_results["score"] / 100
+            print('BLEU:', info_score)
+
+            # faithfulness score
+            f1 = 0
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
+            prompts = [truncated_prompt]
+            predicted = [next_observation.context_text]
+            f1 = f1_score(predicted[0], prompts[0])
+            print('K-F1:', f1)
+
+            # total combined score
+            score = self.model.predict_proba(np.array([[info_score, f1]]))[0][-1]
+            print('Combined:', score)
+            return score
+        return 0
+
+
+class BLEUKnowRewardFunction(RewardFunction):
+    def __init__(self) -> None:
+        super().__init__()
+        self._metric = load_metric("sacrebleu")
+
+    def __call__(
+        self,
+        current_observation: Observation,
+        action: int,
+        next_observation: Observation,
+        done: bool,
+        meta_info: Dict[str, Any] = None,
+    ) -> float:
+        if done:
+            truncated_prompt = ' '.join(next_observation.prompt_or_input_text.split('context:')[-1].split()[:100])
+            prompts = [truncated_prompt]
+            predicted = [next_observation.context_text]
+            metric_results = self._metric.compute(
+                predictions=predicted, references=[prompts],
+            )
+            return metric_results["score"] / 100
+        return 0
+    
+
 if __name__ == "__main__":
-    predictions = "hello there general kenobi"
+    knowledge = "hello there"
+    predictions = "hello there general kenobi xxx"
     references = ["hello there general kenobi", "hello there!!"]
     observation = Observation(
-        None, None, None, None, None, predictions, references, None, None, None, None
+        None, None, knowledge, None, None, predictions, references, None, None, None, None
     )
 
-    reward_fn = MeteorRewardFunction()
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = MeteorRewardFunction()
+    # print(reward_fn(None, None, observation, True))
 
-    reward_fn = chrF()
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = chrF()
+    # print(reward_fn(None, None, observation, True))
 
-    reward_fn = RougeCombined()
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = RougeCombined()
+    # print(reward_fn(None, None, observation, True))
 
-    reward_fn = RougeRewardFunction(rouge_type="rouge1")
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = RougeRewardFunction(rouge_type="rouge1")
+    # print(reward_fn(None, None, observation, True))
 
-    reward_fn = RougeRewardFunction(rouge_type="rouge2")
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = RougeRewardFunction(rouge_type="rouge2")
+    # print(reward_fn(None, None, observation, True))
 
-    reward_fn = RougeRewardFunction(rouge_type="rougeL")
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = RougeRewardFunction(rouge_type="rougeL")
+    # print(reward_fn(None, None, observation, True))
 
-    reward_fn = BERTScoreRewardFunction(language="en")
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = BERTScoreRewardFunction(language="en")
+    # print(reward_fn(None, None, observation, True))
 
-    reward_fn = BLEURewardFunction()
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = BLEURewardFunction()
+    # print(reward_fn(None, None, observation, True))
 
-    reward_fn = BLEURTRewardFunction()
-    print(reward_fn(None, None, observation, True))
+    # reward_fn = BLEURTRewardFunction()
+    # print(reward_fn(None, None, observation, True))
+    print("knowledge = hello there")
+    print("references = ['hello there general kenobi', 'hello there!!']")
+    print("predictions = hello there general kenobi xxx")
+    # reward_fn = CombinedRewardFunction_v2()
+    reward_fn = BLEUKnowRewardFunction()
+    # reward_fn = TokenKnowF1RewardFunction()
+    print(reward_fn(None, None, observation, True, None))

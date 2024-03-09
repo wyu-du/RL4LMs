@@ -181,9 +181,13 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
     def _evaluate_on_datapools(self, epoch: int,
                                splits: List[str] = ["val", "test"]):
         for split in splits:
-            evaluate_on_samples(policy=self._alg.policy,
+            if split == 'train':
+                samples = []
+                for sample in self._samples_by_split[split][:100]:
+                    samples.append(sample[0])
+                evaluate_on_samples(policy=self._alg.policy,
                                 tokenizer=self._tokenizer,
-                                samples=self._samples_by_split[split],
+                                samples=samples,
                                 batch_size=self._eval_batch_size,
                                 max_prompt_length=self._max_prompt_length,
                                 metrics=self._metrics,
@@ -191,11 +195,22 @@ class OnPolicyTrainer(TrainerWarmStartMixin):
                                 split_name=split,
                                 tracker=self._tracker,
                                 gen_kwargs=self._eval_gen_kwargs)
+            else:
+                evaluate_on_samples(policy=self._alg.policy,
+                                    tokenizer=self._tokenizer,
+                                    samples=self._samples_by_split[split],
+                                    batch_size=self._eval_batch_size,
+                                    max_prompt_length=self._max_prompt_length,
+                                    metrics=self._metrics,
+                                    epoch=epoch,
+                                    split_name=split,
+                                    tracker=self._tracker,
+                                    gen_kwargs=self._eval_gen_kwargs)
 
     def train_and_eval(self):
         # evaluate on val and test set before fine-tuning once
         iter_start = self._trainer_state["current_iter"]
-        self._evaluate_on_datapools(epoch=iter_start, splits=["val", "test"])
+        self._evaluate_on_datapools(epoch=iter_start, splits=["val"])
 
         # train for given number of iters
         for epoch in range(iter_start, self._n_iters):
@@ -275,17 +290,33 @@ class SupervisedTrainer:
     def _evaluate_on_datapools(self, epoch: int,
                                splits: List[str] = ["val", "test"]):
         for split in splits:
-            evaluate_supervised(model=self._model,
-                                tokenizer=self._tokenizer,
-                                samples=self._samples_by_split[split],
-                                batch_size=self._eval_batch_size,
-                                max_prompt_length=self._max_prompt_length,
-                                metrics_config_dict=self._metrics_config_dict,
-                                epoch=epoch,
-                                split_name=split,
-                                tracker=self._tracker,
-                                generation_kwargs=self._gen_kwargs
-                                )
+            if split == 'train':
+                samples = []
+                for sample in self._samples_by_split[split][:100]:
+                    samples.append(sample[0])
+                evaluate_supervised(model=self._model,
+                                    tokenizer=self._tokenizer,
+                                    samples=samples,
+                                    batch_size=self._eval_batch_size,
+                                    max_prompt_length=self._max_prompt_length,
+                                    metrics_config_dict=self._metrics_config_dict,
+                                    epoch=epoch,
+                                    split_name=split,
+                                    tracker=self._tracker,
+                                    generation_kwargs=self._gen_kwargs
+                                    )
+            else:
+                evaluate_supervised(model=self._model,
+                                    tokenizer=self._tokenizer,
+                                    samples=self._samples_by_split[split],
+                                    batch_size=self._eval_batch_size,
+                                    max_prompt_length=self._max_prompt_length,
+                                    metrics_config_dict=self._metrics_config_dict,
+                                    epoch=epoch,
+                                    split_name=split,
+                                    tracker=self._tracker,
+                                    generation_kwargs=self._gen_kwargs
+                                    )
 
     def _setup(self):
         self._tokenizer = build_tokenizer(self._tokenizer_config)

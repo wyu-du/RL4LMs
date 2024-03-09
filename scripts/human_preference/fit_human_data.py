@@ -1,59 +1,60 @@
 import pandas as pd
-import torch
-import torch.nn as nn
-import torch.optim as optim
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+import pickle
+from sklearn.model_selection import GridSearchCV
+
 
 # read data
-df = pd.read_excel('data/human_preference/sampled_multidoc2dial.xlsx', index_col=0)
-X = torch.tensor(df.iloc[:, 8:12].values, dtype=torch.float)
-y = torch.tensor(df.iloc[:, 12].values, dtype=torch.long)
+df = pd.read_excel('data/human_preference/sampled_multidoc2dial_2024.xlsx', index_col=0)
+X = np.array(df.iloc[:, 5:9].values, dtype=float)
+y = np.array(df.iloc[:, 9].values, dtype=np.compat.long)
 
-# Define the custom linear neural network
-class CustomLinearNet(nn.Module):
-    def __init__(self, num_classes=3):
-        super(CustomLinearNet, self).__init__()
-        self.coef = nn.parameter.Parameter(torch.ones(1, dtype=torch.float))
-        self.linear = nn.Linear(1, num_classes)
-    
-    def forward(self, x):
-        out = torch.max(self.coef * x[:,0] + (1-self.coef) * x[:,1], 
-                        self.coef * x[:,2] + (1-self.coef) * x[:,3])
-        out = self.linear(out.unsqueeze(1))
-        return out
+X_train, y_train = [], []
+for i in range(len(X)):
+    X_train.append(X[i][:2])
+    X_train.append(X[i][2:])
+    if y[i] == 0:
+        y_train.append(1)
+        y_train.append(0)
+    elif y[i] == 1:
+        y_train.append(0)
+        y_train.append(1)
+    else:
+        y_train.append(0)
+        y_train.append(0)
+X_train = np.array(X_train)
+y_train = np.array(y_train)
 
-# Set random seed for reproducibility
-torch.manual_seed(42)
+# param_grid = {
+#     'solver': ['liblinear', 'lbfgs'],
+#     'penalty': ['l1', 'l2'],
+#     'C': [0.01, 0.1, 1, 10, 100],
+#     'class_weight': [None, 'balanced']
+# }
 
-# Create an instance of the custom linear neural network
-model = CustomLinearNet(num_classes=3)
+# grid_search = GridSearchCV(LogisticRegression(), param_grid, cv=5, scoring='accuracy')
+# grid_search.fit(X_train, y_train)
 
-# Define the loss function and optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=1)
-num_epochs = 19
+# print("Best parameters:", grid_search.best_params_)
 
-# Training loop
-best_acc = 0.
-best_epoch = 0
-for epoch in range(num_epochs):
-    # Forward pass
-    output = model(X)
-    loss = criterion(output, y)
-    
-    # Backward pass and optimization
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-    
-    # Print the loss for every epoch
-    output = model(X)
-    _, predicted_label = torch.max(output, 1)
-    acc = (predicted_label == y).float().mean().item()
-    if acc > best_acc:
-        best_acc = acc
-        best_epoch = epoch
-    print(f"Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}, Acc: {acc}")
+clf = LogisticRegression(C=1, random_state=42, penalty='l1', solver='liblinear', max_iter=1000).fit(X_train, y_train)
+print(clf.score(X_train, y_train))
+print(clf.get_params())
+# print(clf.coef_)
+# print(clf.intercept_)
+# print('input:', X_train[0])
+print('prob:', clf.predict_proba(X_train)[0])
+# print('label:', y_train[0])
+# print('input:', X_train[1])
+# print('prob:', clf.predict_proba(X_train)[1])
+# print('label:', y_train[1])
+# print(clf.predict_proba(X_train))
 
-# Test the trained model
-print(f'Best_epoch: {best_epoch}, best_acc: {best_acc}')
-print('Coef = ', model.coef)
+# save model
+with open('./ckpts/mdd_human_comparison.sav', 'wb') as f:
+    pickle.dump(clf, f)
+# load model
+with open('./ckpts/mdd_human_comparison.sav', 'rb') as f:
+    model = pickle.load(f)
+print(model.predict_proba(X_train[0].reshape(1, -1)))

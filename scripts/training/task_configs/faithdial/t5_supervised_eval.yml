@@ -31,13 +31,13 @@ train_evaluation:
     - id: sacre_bleu
     - id: meteor
     - id: rouge
-    - id: bert_score
-      args:
-        language: en
+    # - id: bert_score
+    #   args:
+    #     language: en
     - id: bert_know_f1
       args:
         language: en
     - id: knowledge_f1
-    - id: diversity
-      args: {}
+    # - id: diversity
+    #   args: {}
 

@@ -11,8 +11,9 @@ def read_best_dev(args):
         if obj['epoch'] == 0: continue
         total_score = 0
         for key, val in obj['metrics'].items():
-            if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'semantic/bert_score', 
-                        'lexical/bert_know_f1', 'lexical/knowledge_f1']:
+            if key in ['lexical/sacrebleu',  
+                       'lexical/meteor', 'lexical/rouge_rougeL', 'lexical/reference_f1', 
+                       'lexical/bert_know_f1', 'lexical/knowledge_f1']:
                 # if key == 'lexical/sacrebleu':
                 #     total_score += val * 0.28
                 # if key == 'lexical/bert_know_f1':
@@ -28,8 +29,7 @@ def read_best_dev(args):
         obj = json.loads(line)
         if obj['epoch'] == max_key:
             for key, val in obj['metrics'].items():
-                if key in ['lexical/sacrebleu', 'lexical/rouge_rougeL', 'semantic/bert_score', 
-                           'lexical/bert_know_f1', 'lexical/knowledge_f1']:
+                if key in ['lexical/sacrebleu', 'lexical/reference_f1', 'lexical/rouge_rougeL', 'lexical/meteor', 'lexical/knowledge_f1']:
                     print(f'{key}: {val}')
     
 

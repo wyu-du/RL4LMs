@@ -706,7 +706,11 @@ if __name__ == "__main__":
     from transformers import AutoTokenizer
     import numpy as np
     # dp = IMDB.prepare("test", 42)
-    # dp = FaithDial.prepare("train")
-    dp = MultiDoc2Dial.prepare("train")
-    print(dp[0])
+    dp = FaithDial.prepare("train")
+    # dp = MultiDoc2Dial.prepare("train")
+    for i in range(10):
+        print(f'============== {i} ==============')
+        sample = dp[i][0]
+        print('knowledge_text:', sample.meta_data['knowledge_passage'])
+        print('reference_text:', sample.references[0])
     

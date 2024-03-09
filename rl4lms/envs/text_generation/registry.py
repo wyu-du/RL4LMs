@@ -88,6 +88,10 @@ from rl4lms.envs.text_generation.reward import (
     CombinedRewardWithSpanFunction,
     MDDRewardFunction,
     FDRewardFunction,
+    TokenKnowF1RewardFunction,
+    TokenRefF1RewardFunction,
+    CombinedRewardFunction_v2,
+    BLEUKnowRewardFunction,
 )
 from rl4lms.envs.text_generation.preference_reward import CommonGenPrefRM
 from rl4lms.envs.text_generation.test_datapool import TestTextGenPool
@@ -157,6 +161,10 @@ class RewardFunctionRegistry:
         'ours_combined_span': CombinedRewardWithSpanFunction,
         'mdd_reward': MDDRewardFunction,
         'fd_reward': FDRewardFunction,
+        'token_know_f1': TokenKnowF1RewardFunction,
+        'bleu_know': BLEUKnowRewardFunction,
+        'token_ref_f1': TokenRefF1RewardFunction,
+        'ours_combined_v2': CombinedRewardFunction_v2,
     }
 
     @classmethod

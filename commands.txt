@@ -2,12 +2,12 @@
 CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/train_text_generation.py \
 --config_path scripts/training/task_configs/faithdial/t5_supervised.yml \
 --project_name rl4lm_exps \
---experiment_name t5-base-fd-supervised \
+--experiment_name t5-base-fd-supervised-5epoch \
 --entity_name wyu-du \
 --log_to_wandb 
 
 # Supervised eval
-CUDA_VISIBLE_DEVICES=2,3 python scripts/training/eval_text_generation.py \
+CUDA_VISIBLE_DEVICES=0 python scripts/training/eval_text_generation.py \
 --config_path scripts/training/task_configs/faithdial/t5_supervised_eval.yml \
 --project_name rl4lm_exps \
 --experiment_name t5-fd-supervised-full
@@ -20,13 +20,21 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python scripts/training/train_text_generation.py \
 --entity_name wyu-du \
 --log_to_wandb 
 
-# PPO eval
-CUDA_VISIBLE_DEVICES=1 python scripts/training/eval_text_generation.py \
---config_path scripts/training/task_configs/faithdial/t5_ppo_eval.yml \
---project_name rl4lm_exps \
---experiment_name t5-fd-supervised-ppo-full-combined072
-
-python scripts/training/get_best_dev_scores.py \
+# MDD PPO eval
+CUDA_VISIBLE_DEVICES=0 python scripts/training/eval_text_generation.py \
 --config_path scripts/training/task_configs/multidoc2dial/t5_ppo_eval.yml \
 --project_name rl4lm_exps \
---experiment_name t5-mdd-supervised-ppo-full-combined028-new
+--experiment_name t5-mdd-supervised-ppo-full-token_know_f1 \
+--epoch 99
+
+# FD PPO eval
+CUDA_VISIBLE_DEVICES=3 python scripts/training/eval_text_generation.py \
+--config_path scripts/training/task_configs/faithdial/t5_ppo_eval.yml \
+--project_name rl4lm_exps \
+--experiment_name t5-fd-supervised-ppo-full-combined_lr \
+--epoch 2399
+
+python scripts/training/get_best_dev_scores.py \
+--config_path scripts/training/task_configs/faithdial/t5_ppo_eval.yml \
+--project_name rl4lm_exps \
+--experiment_name t5-fd-supervised-ppo-full-combined005

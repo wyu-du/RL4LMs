@@ -6,19 +6,22 @@ tokenizer:
 
 reward_fn:
   # id: sacre_bleu
-  # id: bert_know_f1
-  id: mdd_reward
-  # id: ours_combined
+  # id: token_know_f1
+  # id: token_ref_f1
+  # id: mdd_reward
+  # id: ours_combined_v2
   # args:
-  #   cof_info: 0.04
-  #   cof_faith: 0.96
-  #   language: en
+  #   model_path: /p/fewshot/RL4LMs/ckpts/fd_human_comparison.sav
+  id: ours_combined
+  args:
+    cof_info: 0.51
+    cof_faith: 0.49
 
 datapool:
   id: multidoc2dial
 
 env:
-  n_envs: 4
+  n_envs: 2
   args:
     max_prompt_length: 350
     max_episode_length: 50
@@ -29,7 +32,7 @@ env:
 alg:
   id: ppo
   args:
-    n_steps: 50
+    n_steps: 64
     batch_size: 16
     verbose: 1
     learning_rate: 0.0000005
@@ -45,7 +48,8 @@ alg:
       prompt_truncation_side: "right"
       generation_kwargs:
         do_sample: True
-        top_k: 50
+        top_k: 0
+        temperature: 0.95
         max_new_tokens: 50
     
 train_evaluation:
@@ -57,16 +61,13 @@ train_evaluation:
     - id: sacre_bleu
     - id: meteor
     - id: rouge
-    - id: bert_score
-      args:
-        language: en
     - id: bert_know_f1
       args:
         language: en
     - id: knowledge_f1
-    - id: diversity
-      args: {}
   generation_kwargs:
-    num_beams: 4
+    do_sample: True
+    top_k: 0
+    temperature: 0.95
     max_new_tokens: 50
     
